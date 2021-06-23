@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mustache基本语法</title>
+    <script src="../lib/mustache.js"></script>
+    <!-- 这么写不行，type不对时无法引入 -->
+    <script src="./template.js" type="type/template" id="tempateSrc"></script>
+</head>
+
+<body>
+    <div id="container"></div>
+    <script>
+        /* 给定的数据 */
+        const data = {
+            arr: [
+                { name: "小明", age: 12, "sex": "男" },
+                { name: "小红", age: 13, "sex": "女" },
+                { name: "小黄", age: 14, "sex": "男" },
+            ]
+        }
+        const container = document.getElementById("container");
+
+        // 插入语法 {{}}
+        const base = (() => {
+            const baseData = { name: "Mustache", mood: "开心" }
+            const templateStr = `hello {{name}}，今天很{{mood}}`
+            const domStr = Mustache.render(templateStr, baseData)
+            container.innerHTML = domStr
+        });
+        // base()
+
+        //循环简单数组-类似v-for
+        const loopBase = (() => {
+            const loopData = {
+                arr: ["A", "B", "C"]
+            }
+            const templateStr = `
+            <ul id="list">
+                {{#arr}}
+                <li>{{.}}</li>
+                {{/arr}}
+            </ul>
+            `
+            const domStr = Mustache.render(templateStr, loopData)
+            container.innerHTML = domStr
+        })
+        // loopBase()
+
+        // 对象数组循环语法-类似v-for
+        const loopObject = (() => {
+            // 模板字符串，{{#arr}}代表循环开始，{{/arr}}代表循环结束
+            const templateStr = `
+            <ul id="list">
+                {{#arr}}
+                <li>
+                    <div class="hd">{{name}}的基本信息</div>
+                    <div class="bd">
+                        <p>姓名：{{name}}</p>
+                        <p>年龄：{{age}}</p>
+                        <p>性别：{{sex}}</p>
+                    </div>
+                </li>
+                {{/arr}}
+            </ul>
+            `
+            const domStr = Mustache.render(templateStr, data)
+            container.innerHTML = domStr
+        })
+        // loopObject()
+
+        const boolean = () => {
+            const booleanData = { name: "Mustache", m: true }
+            const templateStr = `{{#m}}hello {{name}}{{/m}}`
+            const domStr = Mustache.render(templateStr, booleanData)
+            container.innerHTML = domStr
+        }
+        // boolean()
+
+        const getTemplate = () => {
+            setTimeout(() => {
+                const template = document.getElementById("tempateSrc");
+                console.log(template, "template");
+            }, 500);
+        }
+        getTemplate()
+        /*  */
+    </script>
+
+    <!-- 当script标签的type不是text/javaScript，而是浏览器不认识的值时，浏览器就不会执行script标签里面的代码 -->
+    <!-- 就可以当做一个容器使用，取得script标签下的内容即可，非常方便，但是外联引入的不行，如果type不对，src不会去引入 -->
+    <script type="text/template" id="template">
+        <ul id="list">
+            <li>
+                <div class="hd">小明的基本信息</div>
+                <div class="bd">
+                    <p>姓名：小明</p>
+                    <p>年龄：12</p>
+                    <p>性别：男</p>
+                </div>
+            </li>
+        </ul>
+    </script>
+</body>
+
+</html>

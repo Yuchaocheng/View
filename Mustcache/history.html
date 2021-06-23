@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据变为视图的历史方法</title>
+</head>
+
+<body>
+    <ul id="list">
+        <!-- 要实现的视图 -->
+        <!-- <li>
+            <div class="hd">小明的基本信息</div>
+            <div class="bd">
+                <p>姓名：小明</p>
+                <p>年龄：12</p>
+                <p>性别：男</p>
+            </div>
+        </li> -->
+    </ul>
+    <script>
+        /* 给定的数据 */
+        const arr = [
+            { name: "小明", age: 12, "sex": "男" },
+            { name: "小红", age: 13, "sex": "女" },
+            { name: "小黄", age: 14, "sex": "男" },
+        ]
+        const list = document.getElementById("list");
+
+        // 纯dom法，还是使用了数组和模板字符串的思维，简化一下操作，可以想象这些都不用是多么令人发指。
+        const domMethod = (() => {
+            const createDom = ((pInfo) => {
+                // const cE = document.createElement; //不能这么写，会改变内部this指向
+                const li = document.createElement("li");
+                const hdDiv = document.createElement("div")
+                const bdDiv = document.createElement("div")
+                const keyMap = {
+                    name: "姓名",
+                    age: "年龄",
+                    sex: "性别",
+                };
+                ["name", "age", "sex"].forEach(key => {
+                    const p = document.createElement("p")
+                    p.innerHTML = `${keyMap[key]}：${pInfo[key]}`
+                    bdDiv.appendChild(p);
+                })
+                bdDiv.className = "bd"
+                hdDiv.className = "hd"
+                hdDiv.innerHTML = `${pInfo.name}的基本信息`
+                li.appendChild(hdDiv);
+                li.appendChild(bdDiv);
+                list.appendChild(li);
+            })
+            arr.forEach((item) => createDom(item))
+        })
+        // domMethod();
+
+        /* 数组join法 */
+        const arrayJoin = () => {
+            let resultStr = "";
+            arr.forEach(item => {
+                resultStr += [
+                    "<li>",
+                    "   <div class='hd'>" + item.name + "的基本信息</div>",
+                    "   <div class='bd'>",
+                    "       <p>姓名：" + item.name + "</p>",
+                    "       <p>年龄：" + item.age + "</p>",
+                    "       <p>性别：" + item.sex + "</p>",
+                    "   </div>",
+                    "</li>"
+                ].join("")
+            })
+            list.innerHTML = resultStr
+        };
+        // arrayJoin()
+
+        /* 模板字符串法，和数组join方法类似，因为模板字符串允许幻换行，就不用join了 */
+        const templateStr = () => {
+            let resultStr = "";
+            arr.forEach(item => {
+                resultStr +=
+                    `<li>
+                       <div class='hd'>${item.name}的基本信息</div>
+                       <div class='bd'>
+                           <p>姓名：${item.name}</p>
+                           <p>年龄：${item.age}</p>
+                           <p>性别：${item.sex}</p>
+                       </div>
+                    </li>`
+            })
+            list.innerHTML = resultStr
+        };
+        // templateStr()
+
+        /* 模板引擎，后续详细介绍 */
+        const templateEngine = () => { };
+    </script>
+</body>
+
+</html>
