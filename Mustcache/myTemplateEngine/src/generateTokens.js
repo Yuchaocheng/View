@@ -25,5 +25,5 @@ export default ((templateStr) => {
         num++
     }
     const nexstTokes = nestTokensFun(tokens)
-    console.log(nexstTokes, 111);
+    return nexstTokes
 })

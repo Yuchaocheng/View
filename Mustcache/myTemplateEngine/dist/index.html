@@ -15,19 +15,28 @@
     <div id="box"></div>
     <script>
         const box = document.getElementById("box")
+
+        // 插值语法借鉴
         function template1() {
             let data = {
                 thing: "一双球鞋",
                 mood: "开心"
             }
             const templateStr = "今天我买了{{thing}}，感觉很{{mood}}！"
-            Mustache.render(templateStr, data);
-            templateEngine.render(templateStr, data)
+            const domStr = Mustache.render(templateStr, data);
+            console.log(domStr, "domStr");
+            const domStr2 = templateEngine.render(templateStr, data)
+            console.log(domStr2, "domStr2");
         }
         // template1()
+
+        // 循环语法借鉴
         function template2() {
             const data = {
-                arr: [{ name: "A", list: ["A1", "A2"] }, { name: "B", list: ["B1", "B2"] }, { name: "C", list: ["C1", "C2"] }]
+                arr: [
+                    { name: "A", list: ["A1", "A2"] },
+                    { name: "B", list: ["B1", "B2"] },
+                    { name: "C", list: ["C1", "C2"] }]
             }
             const template = `
             <div>
@@ -36,9 +45,9 @@
                 <li>
                     <p>名称：{{name}}</p>
                     <p>
-                    {{#list}}
-                    <span>{{.}}</span>
-                    {{/list}}
+                        {{#list}}
+                        <span>{{.}}</span>
+                        {{/list}}
                     </p>
                 </li>
                 {{/arr}}
@@ -46,10 +55,59 @@
             </div>
             `
             const domStr = Mustache.render(template, data);
-            // box.innerHTML = domStr
-            templateEngine.render(template, data)
+            console.log(domStr, "domStr");
+            box.innerHTML = domStr
+            const domStr2 = templateEngine.render(template, data)
+            console.log(domStr2, "domStr2");
         }
-        template2()
+        // template2()
+
+        // 条件语法
+        const template3 = (() => {
+            const data = { name: "Mustache", m: true }
+            const template = `{{#m}}hello {{name}}{{/m}}`
+            const domStr = Mustache.render(template, data)
+            box.innerHTML = domStr
+            console.log(domStr, "domStr");
+            const domStr2 = templateEngine.render(template, data)
+            console.log(domStr2, "domStr2");
+        })
+        // template3()
+
+        // 混合语法
+        const template4 = (() => {
+            const data = {
+                arr: [
+                    { name: "A", list: ["A1", "A2"], show: true },
+                    { name: "B", list: ["B1", "B2"], show: false },
+                    { name: "C", list: ["C1", "C2"], show: true }
+                ]
+            }
+            const template = `
+            <div>
+                <ul id="list">
+                {{#arr}}
+                <li>
+                    {{#show}}
+                    <p>名称：{{name}}</p>
+                    <p>
+                        {{#list}}
+                        <span>{{.}}</span>
+                        {{/list}}
+                    </p>
+                    {{/show}}
+                </li>
+                {{/arr}}
+                </ul>
+            </div>
+            `
+            const domStr = Mustache.render(template, data);
+            console.log(domStr, "domStr");
+            box.innerHTML = domStr
+            const domStr2 = templateEngine.render(template, data)
+            console.log(domStr2, "domStr2");
+        })
+        template4()
     </script>
 </body>
 
