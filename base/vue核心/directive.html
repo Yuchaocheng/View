@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自定义指令</title>
+    <script src="../../lib/vue.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <h1>
+            放大十倍后的n值是： <span v-big="n"></span>
+        </h1>
+        <input v-fbind="n">
+        <button @click="n++">点我自增</button>
+    </div>
+    <script>
+        // 全局指令
+        Vue.directive('fbind', {
+            /*
+            自定义指令完整写法，会很很多钩子函数，下面三个是主要的
+            和简写写法的区别，简写写法本质就是把bind和update合并了，但是没有其他钩子了
+              */
+            // 当指令与元素成功绑定时
+            bind(element, binding) {
+                element.value = binding.value
+            },
+            // 指令所在元素被插入页面时，解决上述focus失效问题
+            inserted(element) {
+                /* 成功 */
+                element.focus()
+            },
+            // 指令所在模板被重新解析时
+            update(element, binding) {
+                element.value = binding.value
+
+            }
+        })
+        const vm = new Vue({
+            el: "#app",
+            data: {
+                time: Date.now(),
+                test: "1",
+                n: 1
+            },
+            // 自定义指令
+            /* 
+            指令何时会被调用：
+            1. 指令与元素成功绑定时（一上来）
+            2. 指令所在的模板被重新解析时
+
+            指令内部的this，指向window，原因很简单，指令就是操作原生dom，和vm应该不产生关系
+            */
+            directives: {
+                /* 
+                作用：放大十倍
+                element: 真实dom元素
+                binding：指令绑定信息
+                */
+                big(element, binding) {
+                    // console.log(element, 1);
+                    // console.log(binding, 2);
+                    element.innerText = binding.value * 10
+                },
+                /* 
+                作用：类似v-bind指令，但是可以使input元素获取焦点
+                */
+                // fbind(element, binding) {
+                //     element.value = binding.value
+                //     /* 使元素聚焦，不会生效，原因是focus操作必须将dom插入到文档以后
+                //        指令与元素绑定时，还未插入到dom，所以focus失效。这个问题要解决需要使用指令的完整写法
+                //     */
+                //     element.focus()
+                // },
+                // fbind: {
+                //     /*
+                //     自定义指令完整写法，会很很多钩子函数，下面三个是主要的
+                //     和简写写法的区别，简写写法本质就是把bind和update合并了，但是没有其他钩子了
+                //       */
+                //     // 当指令与元素成功绑定时
+                //     bind(element, binding) {
+                //         element.value = binding.value
+                //     },
+                //     // 指令所在元素被插入页面时，解决上述focus失效问题
+                //     inserted(element) {
+                //         /* 成功 */
+                //         element.focus()
+                //     },
+                //     // 指令所在模板被重新解析时
+                //     update(element, binding) {
+                //         element.value = binding.value
+
+                //     }
+                // }
+            }
+        })
+        console.log(vm);
+    </script>
+</body>
+
+</html>

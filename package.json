@@ -7,7 +7,8 @@
     "lib": "lib"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "webpack serve"
   },
   "repository": {
     "type": "git",
@@ -20,8 +21,30 @@
   },
   "homepage": "https://github.com/Yuchaocheng/Vue#readme",
   "devDependencies": {
+    "@babel/core": "^7.14.6",
+    "@babel/plugin-proposal-object-rest-spread": "^7.14.7",
+    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
+    "@babel/plugin-transform-runtime": "^7.14.5",
+    "@babel/preset-env": "^7.14.7",
+    "@vue/babel-plugin-transform-vue-jsx": "^1.2.1",
+    "babel-loader": "^8.2.2",
+    "babel-plugin-syntax-jsx": "^6.18.0",
+    "babel-plugin-transform-vue-jsx": "^3.7.0",
+    "css-loader": "^5.2.6",
+    "html-webpack-plugin": "^5.3.2",
+    "style-loader": "^3.0.0",
+    "vue-loader": "^15.9.7",
+    "vue-template-compiler": "^2.6.14",
     "webpack": "^5.40.0",
     "webpack-cli": "^4.7.2",
     "webpack-dev-server": "^3.11.2"
+  },
+  "dependencies": {
+    "@vue/babel-helper-vue-jsx-merge-props": "^1.2.1",
+    "@vue/babel-preset-jsx": "^1.2.4",
+    "@vue/compiler-sfc": "^3.1.3",
+    "element-ui": "^2.15.3",
+    "snabbdom": "^3.0.3",
+    "vue": "^2.6.14"
   }
 }

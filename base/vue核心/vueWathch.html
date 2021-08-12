@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>响应式原理</title>
+    <script src="../../lib/vue.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        {{test}} <br>
+        对象：{{obj}} <br>
+        数组：{{arr}}
+    </div>
+    <script>
+        // 创造一个构造函数而不是直接拿data循环属性的好处在于，不必找一个中间变量了
+        // 这就是vue中对象响应式的原理，而数组的响应式则不是这么搞的，数组不能使用defineProperty。
+        class Observer {
+            constructor(data) {
+                this.init(data);
+            }
+            init(data) {
+                // 汇总对象中所有的属性形成一个数组
+                const keys = Object.keys(data);
+                keys.forEach((key) => {
+                    Object.defineProperty(this, key, {
+                        get() {
+                            return data[key];
+                        },
+                        set(value) {
+                            console.log("监听到了数据变化");
+                            data[key] = value;
+                        },
+                    });
+                });
+            }
+        }
+        let data = {
+            name: "Yu",
+            sex: "男",
+        };
+        // 创建一个监视的实例对象，用于监视data中属性的变化
+        const obs = new Observer(data)
+        // vm当做vue实例
+        const vm = {};
+        vm._data = data = obs;
+        console.log(data, "data");
+        console.log(obs, "obs");
+
+        // vm还做了啥呢？
+        /* 
+        1. 数据代理，可以直接访问vm对象，而不用访问vm._data，因为vm上做了数据代理，代理了vm._data。
+        2. 属性值是对象时，vm递归给他设置get和set。也就是说只要有对象，就会设置get和set监听属性。
+        
+        */
+
+        const vm2 = new Vue({
+            el: "#app",
+            data: {
+                test: "111111",
+                obj: {
+                    a: 1
+                },
+                arr: [1, 2, 3]
+            }
+        })
+    </script>
+</body>
+
+</html>
