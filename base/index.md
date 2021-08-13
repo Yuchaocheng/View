@@ -301,3 +301,84 @@ v-pre 指令：
         				1.销毁后借助Vue开发者工具看不到任何信息。
         				2.销毁后自定义事件会失效，但原生DOM事件依然有效，通过vue绑定的@click并没有被清除。
         				3.一般不会在beforeDestroy操作数据，因为即便操作数据，也不会再触发更新流程了。
+
+### 组件
+
+一、如何定义一个组件？
+使用 Vue.extend(options)创建，其中 options 和 new Vue(options)时传入的那个 optio 样，但也有点区别；
+区别如下：
+1.el 不要写，为什么？ ——— 最终所有的组件都要经过一个 vm 的管理，由 vm 中的 el 个容器。
+2.data 必须写成函数，为什么？ ———— 避免组件被复用时，数据存在引用关系。
+备注：使用 template 可以配置组件结构。
+
+#### Vue.extend
+
+Vue.extend 是可以省略的，也就是说在注册时，你可以直接丢一个对象给 components 属性，如下所示，这种形式实际是 Vue 底层帮你调用了 Vue.extend。也就是所传入 components 的数据，Vue 会做判断，如果判断是一个未调用过 Vue.extend 的对象，就自动帮你调用一下 Vue.extend。 Vue.extend 的返回值是一个 VueComponent 的构造函数。
+这里又要说下了，为啥 Vue.extend 返回一个构造函数，原因是组件这个对象并不是在注册时生成，而是在页面上或者其他地方被调用时生成，调用时 VueComponent 返回的构造函数创造出一个组件实例。
+
+```
+components:{
+	template:`
+		<div>
+			<h2>学生姓名：{{studentName}}</h2>
+			<h2>学生年龄：{{age}}</h2>
+		</div>`,
+	data(){
+		return {
+			studentName:'张三',
+				age:18
+			}
+		},
+}
+```
+
+#### 几个注意点：
+
+1.关于组件名:
+多个单词组成：
+第一种写法(kebab-case 命名)：my-school
+第二种写法(CamelCase 命名)：MySchool (需要 Vue 脚手架支持)
+备注：
+(1).组件名尽可能回避 HTML 中已有的元素名称，例如：h2、H2 都不行。
+(2).可以使用 name 配置项指定组件在开发者工具中呈现的名字。
+
+2.关于组件标签:
+第一种写法：<school></school>
+第二种写法：<school/>
+备注：不用使用脚手架时，<school/>会导致后续组件不能渲染。
+
+3.一个简写方式：
+const school = Vue.extend(options) 可简写为：const school = options
+
+### VueComponent：
+
+    1.子组件本质是一个名为VueComponent的构造函数，且不是程序员定义的，是Vue.extend生成的。
+
+    2.我们只需要写<school/>或<school></school>，Vue解析时会帮我们创建school组件的实例对象，
+    即Vue帮我们执行的：new VueComponent(options)。
+
+    3.特别注意：每次调用Vue.extend，返回的都是一个全新的VueComponent！！！！
+
+    4.关于this指向：
+    	(1).组件配置中：
+    		data函数、methods中的函数、watch中的函数、computed中的函数 它们的this均是【VueComponent实例对象】。
+    	(2).new Vue(options)配置中：
+    		data函数、methods中的函数、watch中的函数、computed中的函数 它们的this均是【Vue实例对象】。
+
+    5.VueComponent的实例对象，以后简称vc（也可称之为：组件实例对象）。
+    	Vue的实例对象，以后简称vm。
+
+
+    			1.一个重要的内置关系：VueComponent.prototype.__proto__ === Vue.prototype
+    			也就是说vc的原型的原型 就是 vm的原型，即Vue。这样设计vc就可以访问Vue上的属性和方法
+    			2.为什么要有这个关系：让组件实例对象（vc）可以访问到 Vue原型上的属性、方法。
+
+## 脚手架
+
+关于不同版本的 Vue：
+1.vue.js 与 vue.runtime.xxx.js 的区别：
+(1).vue.js 是完整版的 Vue，包含：核心功能+模板解析器。
+(2).vue.runtime.xxx.js 是运行版的 Vue，只包含：核心功能；没有模板解析器，所以组件选项中无法写 template。开发环境下，我们使用的就是 vue.runtime.esm.js，只能使用 render 函数渲染，所谓 esm 就是 es6 的 module 模块。
+
+    	2.因为vue.runtime.xxx.js没有模板解析器，所以不能使用template配置项，需要使用
+    		render函数接收到的createElement函数去指定具体内容。

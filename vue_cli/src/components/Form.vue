@@ -123,7 +123,7 @@ export default {
           const itemMain = isSelfRender
             ? item.selfRender()
             : this.generateItemMain(h, item);
-            console.log(itemMain,1);
+            // console.log(itemMain,1);
           formItem = h(
             "el-form-item",
             {

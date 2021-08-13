@@ -52,7 +52,12 @@
 			},
 			components:{school}
 		})
-
+		console.log(school,"school");
+		console.log(school.prototype,"school");
+		console.log(school.prototype.__proto__,"school");
+		console.log(vm,"vm");
+		console.log(vm.__proto__,"vm");
+		console.log(school.prototype.__proto__ === Vue.prototype);
 		
 		//定义一个构造函数
 		/* function Demo(){

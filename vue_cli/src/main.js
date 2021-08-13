@@ -7,6 +7,10 @@ Vue.use(ElementUI);
 
 Vue.config.productionTip = false;
 
-new Vue({
+const App2 = Vue.extend(App);
+const vm =  new Vue({
     render: (h) => h(App),
 }).$mount("#app");
+console.log(App2.prototype.__proto__ === vm.__proto__);
+console.log(vm,"vm");
+console.log(vm.__proto__,"vm");
