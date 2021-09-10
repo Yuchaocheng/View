@@ -502,3 +502,421 @@ new Vue({
     3. 备注：若有多个元素需要过度，则需要使用：`<transition-group>`，且每个元素都要指定`key`值。
 
 可以借助 animate + swiper 添加一些酷炫的动画效果，可以考虑在 Vue 中封装成组件，这个可以玩下
+
+### vuex
+
+#### 搭建 vuex 环境
+
+注意： new Vuex.Store 必须再 Vue.use(vuex)之前，否则会报错。
+
+1. 创建文件：`src/store/index.js`
+
+    ```js
+    //引入Vue核心库
+    import Vue from "vue";
+    //引入Vuex
+    import Vuex from "vuex";
+    //应用Vuex插件
+    Vue.use(Vuex);
+
+    //准备actions对象——响应组件中用户的动作
+    const actions = {};
+    //准备mutations对象——修改state中的数据
+    const mutations = {};
+    //准备state对象——保存具体的数据
+    const state = {};
+
+    //创建并暴露store
+    export default new Vuex.Store({
+        actions,
+        mutations,
+        state,
+    });
+    ```
+
+    vuex 中业务逻辑最好全部写在 actions 中，commits 中直接修改 state，尽量保证最简单的修改逻辑。
+    actions 的第一个回调函数为 context，就是一个小型版的 store，而并单纯是 commit。 这样设计的原因是满足 actions 中复杂的逻辑。比如需要在一个 action 中调用另外一个 action。
+    直接在 Vue 中或者 actions 里修改 state，会产生什么问题？ 数据修改和视图更新都没有问题，产生的问题一，devTools 失效，因为 devTools 是监听 mutations。第二直接修改 state，会让我们查找修改 state 中的数据源头变得困难，否则我们只需要搜索 mutations 方法即可。
+    vue 的 devtool 只关注 mutations，不关注 actions，因为它只关心 state 什么时候被改变
+
+#### map 函数
+
+mapStates 和 MapGetters 需要在 computed 里展开， 该辅助函数传入的参数为对象或者数组，传入对象或者数组的作用是两个，第一你需要去 state 找哪个变量，第二你想要绑定在该组件自身实例上的 computed 的变量名是啥。 这两者每个变量独有的，必须告诉该辅助函数。
+传入后 return 的是一个对象，对象名就是传入的对象 key 值或者数组值，对象值是一个函数，就像 computed 里的 get 函数一样，该函数内容其实就类似 return this.\$store.state.x 调用 computed 变量时就调用了该函数。
+
+mapMutations 需要在 methods 里展开，它的一个注意点是如果需要传参，需要直接放在方法后面传参。
+辅助函数生成的 commit 函数，认为在方法里的参数就是你的传参。 如果不写一般变成传入事件对象了
+
+```
+this.$store.commit("test",this.a)
+
+methods:{
+	...mapMutations(["test"])
+}
+mounted(){
+	this.test(this.a)
+}
+```
+
+#### vuex 模块化和命名空间 & 严格模式
+
+默认情况下，模块内部的 action、mutation 和 getter 是注册在全局命名空间的——这样使得多个模块能够对同一 mutation 或 action 作出响应。
+
+当采用模块化后，是否启用命名空间的读取方式是不同的，默认 nameSpaced:false。
+
+3. 开启命名空间后，组件中读取 state 数据：
+
+    ```js
+    //方式一：自己直接读取
+    this.$store.state.personAbout.list
+    //方式二：借助mapState读取：
+    ...mapState('countAbout',['sum','school','subject']),
+    ```
+
+4. 开启命名空间后，组件中读取 getters 数据：
+
+    ```js
+    //方式一：自己直接读取
+    this.$store.getters['personAbout/firstPersonName']
+    //方式二：借助mapGetters读取：
+    ...mapGetters('countAbout',['bigSum'])
+    ```
+
+5. 开启命名空间后，组件中调用 dispatch
+
+    ```js
+    //方式一：自己直接dispatch
+    this.$store.dispatch('personAbout/addPersonWang',person)
+    //方式二：借助mapActions：
+    ...mapActions('countAbout',{incrementOdd:'jiaOdd',incrementWait:'jiaWait'})
+    ```
+
+### 路由
+
+1. 理解： 一个路由（route）就是一组映射关系（key - value），多个路由需要路由器（router）进行管理。
+2. 前端路由：key 是路径，value 是组件。
+
+3. 跳转（要写完整路径或者使用 name）
+
+    ```vue
+    <router-link to="/home/news">News</router-link>
+    ```
+
+#### 路由的 query 参数
+
+```vue
+<!-- 跳转并携带query参数，to的字符串写法 -->
+<router-link :to="/home/message/detail?id=666&title=你好">跳转</router-link>
+
+<!-- 跳转并携带query参数，to的对象写法 -->
+<router-link
+    :to="{
+        path: '/home/message/detail',
+        query: {
+            id: 666,
+            title: '你好',
+        },
+    }">跳转</router-link>
+
+<!--简化后，直接通过名字跳转 -->
+<router-link :to="{ name: 'hello' }">跳转</router-link>
+
+<!--简化写法配合传递参数 -->
+<router-link
+    :to="{
+        name: 'hello',
+        query: {
+            id: 666,
+            title: '你好',
+        },
+    }">跳转</router-link>
+```
+
+2. 接收参数：
+
+    ```js
+    $route.query.id;
+    $route.query.title;
+    ```
+
+#### 路由的 params 参数
+
+```
+   				{
+   					name:'xiangqing',
+   					path:'detail/:id/:title', //使用占位符声明接收params参数
+   					component:Detail
+   				}
+```
+
+```
+//vue
+
+<!-- 跳转并携带params参数，to的字符串写法 -->
+<router-link :to="/home/aeegmss/detail/666/你好">跳转</router-link>
+
+<!-- 跳转并携带params参数，to的对象写法 -->
+<router-link
+    :to="{
+        name: 'xiangqing',
+        params: {
+            id: 666,
+            title: '你好',
+        },
+    }">跳转</router-link>
+```
+
+特别注意：路由携带 params 参数时，若使用 to 的对象写法，则不能使用 path 配置项，必须使用 name 配置！
+不使用占位符时如果也用 params 传参，参数也可以传递过去，但是刷新后就没有了。所以一般来说要使用 params 传参就用动态路由的方式
+
+#### 路由的 props 配置
+
+​ 作用：让路由组件更方便的收到参数
+
+```js
+{
+	name:'xiangqing',
+	path:'detail/:id',
+	component:Detail,
+
+	//第一种写法：props值为对象，该对象中所有的key-value的组合最终都会通过props传给Detail组件
+	// props:{a:900}
+
+	//第二种写法：props值为布尔值，布尔值为true，则把路由收到的所有params参数通过props传给Detail组件
+	// props:true
+
+	//第三种写法：props值为函数，该函数返回的对象中每一组key-value都会通过props传给Detail组件
+	props(route){
+		return {
+			id:route.query.id,
+			title:route.query.title
+		}
+	}
+}
+```
+
+### `<router-link>`的 replace 属性
+
+1. 作用：控制路由跳转时操作浏览器历史记录的模式
+2. 浏览器的历史记录有两种写入方式：分别为`push`和`replace`，`push`是追加历史记录，`replace`是替换当前记录。路由跳转时候默认为`push`
+3. 如何开启`replace`模式：`<router-link replace .......>News</router-link>`
+
+#### 编程式路由导航
+
+1. 作用：不借助`<router-link>`实现路由跳转，让路由跳转更加灵活
+
+2. 具体编码：
+
+    ```js
+    //$router的两个API
+    this.$router.push({
+        name: "xiangqing",
+        params: {
+            id: xxx,
+            title: xxx,
+        },
+    });
+
+    this.$router.replace({
+        name: "xiangqing",
+        params: {
+            id: xxx,
+            title: xxx,
+        },
+    });
+    this.$router.forward(); //前进
+    this.$router.back(); //后退
+    this.$router.go(); //可前进也可后退
+    ```
+
+#### 10.缓存路由组件
+
+1. 作用：让不展示的路由组件保持挂载，不被销毁。
+
+2. 具体编码：
+
+    ```vue
+    <keep-alive include="News"> 
+        <router-view></router-view>
+    </keep-alive>
+    ```
+
+    include 多个时可以使用数组
+
+#### 11.两个新的生命周期钩子
+
+3. 作用：路由组件所独有的两个钩子，用于捕获路由组件的激活状态。
+4. 具体名字：
+    1. `activated`路由组件被激活时触发。
+    2. `deactivated`路由组件失活时触发。
+
+使用场景：当路由缓存时，如果离开当前路由，组件是不被销毁的，所以也就不走 mounted 和 destroyed 钩子函数，但是会触发
+activated 和 deactivated 钩子函数。
+
+#### 13.路由器的两种工作模式
+
+1. 对于一个 url 来说，什么是 hash 值？—— #及其后面的内容就是 hash 值。
+2. hash 值不会包含在 HTTP 请求中，即：hash 值不会带给服务器。
+3. 可以为 hash 的改变添加监听事件：
+
+```
+window.addEventListener("hashchange", funcRef, false)
+```
+
+4. 每一次改变 hash（window.location.hash），都会在浏览器的访问历史中增加一个记录
+
+利用 hash 的以上特点，就可以来实现前端路由“更新视图但不重新请求页面”的功能了。
+
+3. hash 模式：
+    1. 地址中永远带着#号，不美观 。
+    2. 若以后将地址通过第三方手机 app 分享，若 app 校验严格，则地址会被标记为不合法。
+    3. 兼容性较好。
+4. history 模式：
+    1. 地址干净，美观 。
+    2. 兼容性和 hash 模式相比略差。
+    3. 应用部署上线时需要后端人员支持，解决刷新页面服务端 404 的问题。
+
+#### 实现原理
+
+##### hash 模式
+
+1. push 方法：window.location.hash = route.fullPath --hash 的改变会自动添加到浏览器的访问历史记录中
+
+从设置路由到更新视图的流程如下：
+
+```
+$router.push() --> HashHistory.push() --> History.transitionTo() --> History.updateRoute() --> {app._route = route} --> vm.render()
+
+```
+
+1 \$router.push() //调用方法
+
+2 HashHistory.push() //根据 hash 模式调用,设置 hash 并添加到浏览器历史记录（添加到栈顶）（window.location.hash= XXX）
+
+3 History.transitionTo() //监测更新，更新则调用 History.updateRoute()
+
+4 History.updateRoute() //更新路由
+
+5 {app.\_route= route} //替换当前 app 路由
+
+6 vm.render() //更新视图
+
+<!-- HashHistory.push -->
+
+```
+push (location: RawLocation, onComplete?: Function, onAbort?: Function) {
+    this.transitionTo(location, route => {
+      pushHash(route.fullPath)
+      onComplete && onComplete(route)
+    }, onAbort)
+  }
+
+function pushHash (path) {
+    window.location.hash = path
+}
+```
+
+<!-- transitionTo部分,transitionTo()方法是父类中定义的是用来处理路由变化中的基础逻辑的 -->
+
+```
+transitionTo (location: RawLocation, onComplete?: Function, onAbort?: Function) {
+  const route = this.router.match(location, this.current)
+  this.confirmTransition(route, () => {
+    this.updateRoute(route)
+    ...
+  })
+}
+
+updateRoute (route: Route) {
+
+  this.cb && this.cb(route)
+
+}
+
+listen (cb: Function) {
+  this.cb = cb
+}
+
+```
+
+Vue.mixin()方法，全局注册一个混合，影响注册之后所有创建的每个 Vue 实例，该混合在 beforeCreate 钩子中通过 Vue.util.defineReactive()定义了响应式的\_route 属性。所谓响应式属性，即当\_route 值改变时，会自动调用 Vue 实例的 render()方法，更新视图。
+
+2. replace 方法：
+   它的流程和 push 基本相同，唯一的差别是浏览器地址的改变不是通过 window.location.hash 来改变的。
+   而是调用了 location 的 replace 方法，这样浏览器就不会记录本次路由变化
+
+```
+function replaceHash (path) {
+  const i = window.location.href.indexOf('#')
+  window.location.replace(
+    window.location.href.slice(0, i >= 0 ? i : 0) + '#' + path
+  )
+}
+```
+
+3. 监听地址栏
+
+```
+setupListeners () {
+  window.addEventListener('hashchange', () => {
+    if (!ensureSlash()) {
+      return
+    }
+    this.transitionTo(getHash(), route => {
+      replaceHash(route.fullPath)
+    })
+  })
+}
+```
+
+该方法设置监听了浏览器事件 hashchange，调用的函数为 replaceHash，即在浏览器地址栏中直接输入路由相当于代码调用了 replace()方法
+但是比较奇怪的一点是，它呈现出来的效果和 replace 不同，如果是 replace，地址栏应该不能返回，但是你再地址栏中输入路由，趋势可以返回回去的。
+
+##### history 模式
+
+借助 HTML5 提供的两个新方法：pushState(), replaceState()。这两个方法可以对了浏览器历史栈进行修改，但浏览器不会发送请求该 URL，即页面不跳转。这就为单页应用前端路由“更新视图但不重新请求页面”提供了基础。
+
+当然要使用这个模式，浏览器就必须支持 HTML5。
+
+```
+<!--
+stateObject: 当浏览器跳转到新的状态时，将触发popState事件，该事件将携带这个stateObject参数的副本
+title: 所添加记录的标题(当前很多浏览器都已忽略这个参数，填空即可)
+URL: 所添加记录的URL
+ -->
+window.history.pushState(stateObject, title, URL)
+window.history.replaceState(stateObject, title, URL
+```
+
+-   监听：history 模式的地址栏 url 监听，借助了 popstate 事件，传值过来的对象保存在 event.state 中
+
+```
+constructor (router: Router, base: ?string) {
+
+  window.addEventListener('popstate', e => {
+    const current = this.current
+    this.transitionTo(getLocation(this.base), route => {
+      if (expectScroll) {
+        handleScroll(router, route, current, true)
+      }
+    })
+  })
+}
+
+```
+
+<!-- history的优势 -->
+
+1. pushState 设置的新 URL 可以是与当前 URL 同源的任意 URL；而 hash 只可修改#后面的部分，故只可设置与当前同文档的 URL
+2. pushState 设置的新 URL 可以与当前 URL 一模一样，这样也会把记录添加到栈中；而 hash 设置的新值必须与原来不一样才会触发记录添加到栈中
+3. pushState 通过 stateObject 可以添加任意类型的数据到记录中；而 hash 只可添加短字符串
+4. pushState 可额外设置 title 属性供后续使用
+
+####
+
+在地址栏中输入地址和自身跳转是不同的。
+比如在 history 模式下，在地址栏中输入地址回车后就会向服务端发送请求，这个是无法阻止的。并不是 vue 检测到了这个行为，然后阻止了发送请求。而是请求发送完成，服务端返回了 index.html 然后 vue 根据当前的浏览器的 url 匹配出了当前路由，然后进行路由渲染。
+
+但是如果是利用代码的跳转，即使用了 history.pushState 方法，此方法只改变 url 而不发送请求。并且这之后点击了浏览器的前进或后退按钮，因为是使用的 pushState 方法保存入历史栈中，所以同样不会发送请求，但此时可被 popstate 事件监听到。vue 利用此监听事件做后续处理
+
+而在hash模式下，不管是代码层面的跳转还是url上输入地址，都是不会重新想服务器发送请求的。 而此时完全是凭借hashChange事件监听
