@@ -33,8 +33,8 @@ Mustache 底层核心机理很多都被 Vue 借鉴
 
 #### Mustache 库不能用简单的正则表达式思路实现
 
--   在较为简单的实例情况下，可以使用正则表达式实现。如插值语法
--   但是当情况复杂时，正则表达式的思路就不行了，比如循环语法
+- 在较为简单的实例情况下，可以使用正则表达式实现。如插值语法
+- 但是当情况复杂时，正则表达式的思路就不行了，比如循环语法
 
 #### tokens（象征；代币）
 
@@ -95,14 +95,14 @@ tokens = [
 
 ## Vue 高阶用法或最佳实践
 
--   组件和 mixin 对比，使用场景区分
--   组件通信（增加 vuex 和本地存储如 sessionStorage 的对比）
--   渲染函数和 JSX
--   vuex 中 mutation 和 aciton 对比
--   watch 和 computed 对比
--   require.context 运用（如全局组件注册）
--   开发插件
--   开发过滤器
+- 组件和 mixin 对比，使用场景区分
+- 组件通信（增加 vuex 和本地存储如 sessionStorage 的对比）
+- 渲染函数和 JSX
+- vuex 中 mutation 和 aciton 对比
+- watch 和 computed 对比
+- require.context 运用（如全局组件注册）
+- 开发插件
+- 开发过滤器
 
 ## 虚拟 dom 和 diff 算法
 
@@ -113,6 +113,26 @@ diff 是发生再虚拟 dom 上的，新老虚拟 dom 进行 diff，算出应该
 原因很简单，直接用真实 dom 比较麻烦且耗性能。
 
 弄懂三个事情：
-1. 虚拟dom如何被渲染函数（h函数）产生？手写h函数
-2. diff算法原理？手写diff算法
-3. 虚拟dom如何通过diff变为真正的dom，实际上，这一部分是涵盖在diff算法里面的。
+
+1. 虚拟 dom 如何被渲染函数（h 函数）产生？手写 h 函数
+2. diff 算法原理？手写 diff 算法
+3. 虚拟 dom 如何通过 diff 变为真正的 dom，实际上，这一部分是涵盖在 diff 算法里面的。
+
+# 现在很多的源码库都是使用 ts 编写，对 ts 的学习应该提上日程了。
+
+//
+snabbdom 是著名的虚拟 DOM 库，是 diff 算法的鼻祖，Vue 源码借鉴了 snabbdom
+
+### 虚拟 dom 有哪些属性？
+
+```js
+const vnode = {
+  children: [], // 子元素
+  data: {}, //属性样式
+  elm: undefined, //该虚拟dom真正的dom节点，undefined表示还未上树
+  sel: 'div', // 选择器
+  text: ''
+};
+```
+
+### 手写 h 函数

@@ -1,14 +1,19 @@
-import Vue from "vue";
-console.log(11111111);
-import ElementUI from "element-ui";
-import "element-ui/lib/theme-chalk/index.css";
-import App from "./App.vue";
+import Vue from 'vue';
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
+import VueRouter from 'vue-router';
+import App from './App.vue';
+import snabbdom from './views/snabbdom.vue';
 
+const routes = [{ path: '/snabbdom', component: snabbdom }];
+const router = new VueRouter({
+  routes
+});
 Vue.use(ElementUI);
+Vue.use(VueRouter);
 
 new Vue({
-    el: "#app",
-    render: (h) => h(App),
+  el: '#app',
+  router,
+  render: h => h(App)
 });
-
-

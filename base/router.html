@@ -1,0 +1,64 @@
+<!-- 路由原理 -->
+<!-- 解决以下两个问题
+    1. vueRouter 如何实现改变地址栏url而不向服务器发送请求？
+    2. vueRouter 如何监听url变化？
+
+ -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Router</title>
+</head>
+
+<body>
+    <button onclick="hashChange()"> hashChange</button>
+    <button onclick="historyChange()"> historyChange</button>
+    <button onclick="historyBack()"> historyBack</button>
+    <script>
+        /* hash模式下的 */
+        let hashIndex = 0;
+        /* 调用push方法时改变路由 */
+        function hashChange() {
+            const hashArr = ["a", "b", "c"]
+            window.location.hash = hashArr[hashIndex]
+            hashIndex >= 2 ? hashIndex = 0 : hashIndex++;
+        }
+        // hahs模式下监听路由
+        window.addEventListener('hashchange', myFunction);
+
+        /* hash模式下设置的hashchange监听事件，url中的hash值改变时触发，无论是通过代码改变还是通过浏览器输入改变 */
+        function myFunction(e) {
+            debugger
+            console.log(e.oldURL, "oldURL");
+            console.log(e.newURL, "newURL");
+        }
+
+        /* history模式下的 */
+        function historyChange() {
+            const hashArr = ["a", "b", "c"]
+            const currentS = hashArr[hashIndex]
+
+            window.history.pushState({ page: currentS }, currentS, currentS)
+            // window.history.replaceState(stateObject, title, URL)
+            hashIndex >= 2 ? hashIndex = 0 : hashIndex++;
+        }
+        /* history模式下的监听，即popState事件无法监听到通过pushState或replaceState方法导致的页面url改变。
+           所以onpopstate监听到的分两种：一种是点击浏览器的前进或者后退；第二种js代码调用History.back()、History.forward()、History.go()
+        */
+        window.onpopstate = function (event) {
+            console.log('state: ', event.state);
+        };
+
+        function historyBack() {
+            window.history.back()
+        }
+
+        /* 当页面刷新时，hash模式下的hashchange和onpopstate事件都无法监听到了。不过页面刷新监听其实也没有意义了，因为代码需要从头执行了 */
+    </script>
+</body>
+
+</html>

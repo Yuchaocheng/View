@@ -10,6 +10,8 @@ import VueTest from "@/components/VueTest.vue";
 import Components from "@/view/Components.vue";
 import MarryTest from "@/view/MarryTest.vue";
 
+import nextTick from "./test";
+
 Vue.use(ElementUI);
 Vue.use(VueRouter);
 
@@ -25,7 +27,7 @@ const routes = [
     },
 ];
 const router = new VueRouter({
-    // mode: "history",
+    mode: "history",
     routes, // (缩写) 相当于 routes: routes
 });
 
@@ -42,7 +44,22 @@ const vm = new Vue({
 // console.log(Vue.prototype, "Vue");
 // console.log(vm, "vm");
 
-window.onhashchange = function() {
-    debugger
-    console.log("URL发生变化了");
+// hahs模式下监听路由
+window.addEventListener("hashchange", myFunction);
+
+/* hash模式下设置的hashchange监听事件，url中的hash值改变时触发，无论是通过代码改变还是通过浏览器输入改变 */
+function myFunction(e) {
+    debugger;
+    console.log(e.oldURL, "oldURL");
+    console.log(e.newURL, "newURL");
+}
+
+window.onpopstate = function(event) {
+    console.log("state: ", event.state);
+    debugger;
 };
+
+setTimeout(() => {
+    debugger
+    history.pushState({page:"marry"},"","/marry");
+}, 3000);
