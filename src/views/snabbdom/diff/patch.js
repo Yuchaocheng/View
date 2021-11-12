@@ -1,0 +1,146 @@
+import vnode from '../vnode';
+import createEle from './createEle';
+
+// 是否为同一个虚拟节点
+const isSameVnode = (oldVnode, newVnode) => {
+  const keyIsSame = oldVnode.key === newVnode.key;
+  const selIsSame = oldVnode.sel === newVnode.sel;
+  return keyIsSame && selIsSame;
+};
+
+// 子节点更新策略
+const updateChildren = (parentNode, oldCh, newCh) => {
+  console.log(newCh);
+  console.log(newCh);
+  console.log('chchchchchchch');
+  let testI = 0; // 开发时防止死循环，开发完后删除。
+  let oldStartIdx = 0; // 旧前
+  let newStartIdx = 0; // 新前
+  let oldEndIdx = oldCh.length - 1;
+  let newEndIdx = newCh.length - 1;
+  let oldStartVnode = oldCh[oldStartIdx];
+  let oldEndVnode = oldCh[oldEndIdx];
+  let newStartVnode = newCh[newStartIdx];
+  let newEndVnode = newCh[newEndIdx];
+  /* 该判断条件就说明，要么新虚拟节点已经一个一个参与完匹配了，不管是否匹配上；要么旧虚拟节点已经被匹配完了。这两种情况任意发生一种，循环终止 */
+  while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx && testI < 100) {
+    if (isSameVnode(oldStartVnode, newStartVnode)) {
+      /* 
+      新前与旧前匹配，实际应用中，若v-for循环的数组长度未变化，只变化各项内容时。只用到该种判断即可完成。
+      若是按顺在在数组末尾添加项，除添加项外的其他项也只用该种匹配，添加项4种匹配都匹配不上，因为旧虚拟节点中没有。
+      所以新前与旧前，就占了开发中最有可能出现的两种情况。
+      */
+      console.log('1命中');
+      patchVnode(oldStartVnode, newStartVnode);
+      oldStartVnode = oldCh[++oldStartIdx];
+      newStartVnode = newCh[++newStartIdx];
+    } else if (isSameVnode(oldEndVnode, newEndVnode)) {
+      console.log('2命中');
+      /* 新后与旧后，该种匹配针对非行尾插入项。根据插入位置，插入位置之前的项通过新前与旧前匹配，插入位置之后的项就通过新后与旧后匹配 */
+      patchVnode(oldEndVnode, newEndVnode);
+      oldEndVnode = oldCh[--oldEndIdx];
+      newEndVnode = newCh[--newEndIdx];
+    } else if (isSameVnode(oldStartVnode, newEndVnode)) {
+      console.log('3命中');
+      // 新后与旧前
+      patchVnode(oldStartVnode, newEndVnode);
+      /* insertBefore插入一个已经在dom树上的节点，它就会移动，这一点很关键。 */
+      // 新前指向的节点，移动到旧后之后
+      if (oldEndVnode.elm.nextSibling) {
+        parentNode.insertBefore(newStartVnode.elm, oldEndVnode.elm.nextSibling);
+      } else {
+        parentNode.appendChild(oldStartVnode.elm);
+      }
+      // 不要忘记换位置，移动到新后之后
+      oldStartVnode = oldCh[++oldStartIdx];
+      newEndVnode = newCh[--newEndIdx];
+    } else if (isSameVnode(oldEndVnode, newStartVnode)) {
+      console.log('4命中');
+      // 新前与旧后
+      patchVnode(oldEndVnode, newStartVnode);
+      // 新后指向的节点，移动到旧前之前
+      parentNode.insertBefore(newEndVnode.elm, oldStartVnode.elm);
+      oldEndVnode = oldCh[--oldEndIdx];
+      newStartVnode = newCh[++newStartIdx];
+    } else {
+      // 四种情况都未匹配上，则新newStartIdx +1 ，
+      // 四种情况都未匹配上时做何种处理？
+      newStartVnode = newCh[++newStartIdx];
+    }
+
+    testI++;
+  }
+  /* 循环结束了 */
+  if (newStartIdx <= newEndIdx) {
+    // 新虚拟dom有节点未被匹配，这些未被匹配的节点需要新增
+    /* 这里有一个疑问，新虚拟节点有可能没有elm属性？未上过树咋办？
+       解答上面的问题：因为newEndIdx只要不是最后一个，即从末尾元素有被匹配到过，匹配到过就会进行patchVnode函数，就会带上elm节点
+       了。而如果是最后一个，从未被匹配到，before就是null，直接在最末尾新增
+     */
+    const before = newCh[newEndIdx + 1] == null ? null : newCh[newEndIdx + 1].elm;
+    for (let index = newStartIdx; index <= newEndIdx; index++) {
+      /* 以newEndIdx为标杆，在它之前插入，insertBefore如果第二个参数是null，就认为在父节点最后插入dom，
+      效果等同于appendChild */
+      parentNode.insertBefore(createEle(newCh[index]), before);
+    }
+  } else if (oldStartIdx <= oldEndIdx) {
+    // 旧虚拟dom有节点未被匹配，这些未被匹配的节点需要删除
+    for (let index = oldStartIdx; index <= oldEndIdx; index++) {
+      parentNode.removeChild(oldCh[index].elm);
+    }
+  }
+};
+// 当新老虚拟节点是同一个时，进行精细化比较，因为需要递归，所以把函数单独提起出来。
+// patchNode后，虚拟节点elm就不能是null了
+const patchVnode = (oldVnode, newVnode) => {
+  // 是同一个节点，进行精细化比较，具体情况查看patch函数流程图
+  if (oldVnode === newVnode) {
+    // 新旧节点是内存中的同一个对象时，就什么都不做
+    return;
+  }
+  if (newVnode.text || newVnode.text === '') {
+    if (newVnode.text === oldVnode.text) {
+      // 新旧节点子节点都是文本节点，且text相同时，不需要做处理
+      newVnode.elm = oldVnode.elm;
+      return;
+    } else {
+      oldVnode.elm.innerText = newVnode.text;
+      newVnode.elm = oldVnode.elm;
+    }
+  } else if (newVnode.children) {
+    if (oldVnode.text) {
+      // 1. 清空旧dom
+      oldVnode.elm.innerHTML = '';
+      // 2. 添加新虚拟节点的children属性
+      newVnode.children.forEach(child => {
+        oldVnode.elm.appendChild(createEle(child));
+      });
+      newVnode.elm = oldVnode.elm;
+    } else if (oldVnode.children) {
+      // 最复杂的情况，新老虚拟节点都有children，就需要对比每一个子节点
+      updateChildren(oldVnode.elm, oldVnode.children, newVnode.children);
+    }
+  }
+};
+export default (oldVnode, newVnode) => {
+  /* 源码中就是这么判断的，实际上随意了一点，有可能在dom对象是新增了一个sel属性 */
+  if (oldVnode.sel === undefined) {
+    oldVnode = vnode(oldVnode.tagName, {}, [], '', oldVnode);
+  }
+
+  // 是否为同一个虚拟节点
+  const keyIsSame = oldVnode.key === newVnode.key;
+  const selIsSame = oldVnode.sel === newVnode.sel;
+  if (keyIsSame && selIsSame) {
+    patchVnode(oldVnode, newVnode);
+  } else {
+    // 不是同一个节点，插入新dom，删除旧dom
+    const newDom = createEle(newVnode);
+    if (!oldVnode.elm) {
+      // 老节点要么是真实dom，要么是虚拟dom但是具有elm属性
+      return;
+    }
+    oldVnode.elm.parentNode.insertBefore(newDom, oldVnode.elm);
+    oldVnode.elm.parentNode.removeChild(oldVnode.elm);
+  }
+};
