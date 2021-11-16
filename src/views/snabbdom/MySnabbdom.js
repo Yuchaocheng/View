@@ -65,17 +65,18 @@ class MySnabbdom {
   useMyPatch(isFirst) {
     const container = document.getElementById('container');
     const vnode2 = h('ul', [
+      h('li', { key: 'A0' }, 'A0'),
       h('li', { key: 'A1' }, 'A111'),
       h('li', { key: 'B2' }, 'B2222'),
-      // h('li', { key: 'C3' }, 'C33'),
+      h('li', { key: 'C3' }, 'C33'),
       h('li', { key: 'D4' }, 'D44'),
     ]);
     if (isFirst) {
       this.oldVnode = h('ul', [
-        h('li', { key: 'A1' }, 'A1'),
         h('li', { key: 'B2' }, 'B2'),
-        h('li', { key: 'C3' }, 'C3'),
+        h('li', { key: 'A1' }, 'A1'),
         h('li', { key: 'D4' }, 'D4'),
+        h('li', { key: 'C3' }, 'C3'),
         // h('li', { key: 'E5' }, 'E5'),
       ]);
       //  第一次上树

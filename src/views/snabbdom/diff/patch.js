@@ -10,7 +10,7 @@ const isSameVnode = (oldVnode, newVnode) => {
 
 // 子节点更新策略
 const updateChildren = (parentNode, oldCh, newCh) => {
-  console.log(newCh);
+  console.log(oldCh);
   console.log(newCh);
   console.log('chchchchchchch');
   let testI = 0; // 开发时防止死循环，开发完后删除。
@@ -22,8 +22,17 @@ const updateChildren = (parentNode, oldCh, newCh) => {
   let oldEndVnode = oldCh[oldEndIdx];
   let newStartVnode = newCh[newStartIdx];
   let newEndVnode = newCh[newEndIdx];
+  let keyMap = null;
   /* 该判断条件就说明，要么新虚拟节点已经一个一个参与完匹配了，不管是否匹配上；要么旧虚拟节点已经被匹配完了。这两种情况任意发生一种，循环终止 */
   while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx && testI < 100) {
+    /* 这两种情况说明oldStartVnode或者oldEndVnode已经被处理了 */
+    if (oldStartVnode == null) {
+      oldStartVnode = oldCh[++oldStartIdx];
+      continue;
+    } else if (oldEndVnode == null) {
+      oldEndVnode = oldCh[--oldEndIdx];
+      continue;
+    }
     if (isSameVnode(oldStartVnode, newStartVnode)) {
       /* 
       新前与旧前匹配，实际应用中，若v-for循环的数组长度未变化，只变化各项内容时。只用到该种判断即可完成。
@@ -45,31 +54,62 @@ const updateChildren = (parentNode, oldCh, newCh) => {
       // 新后与旧前
       patchVnode(oldStartVnode, newEndVnode);
       /* insertBefore插入一个已经在dom树上的节点，它就会移动，这一点很关键。 */
-      // 新前指向的节点，移动到旧后之后
-      if (oldEndVnode.elm.nextSibling) {
-        parentNode.insertBefore(newStartVnode.elm, oldEndVnode.elm.nextSibling);
-      } else {
-        parentNode.appendChild(oldStartVnode.elm);
-      }
-      // 不要忘记换位置，移动到新后之后
+      // 新前指向的节点，移动到旧后之后。因为现在是新后命中，所以最终的排序，插入节点一定是在已经匹配过的元素的最后。所以是旧后之后
+      parentNode.insertBefore(newEndVnode.elm, oldEndVnode.elm.nextSibling);
       oldStartVnode = oldCh[++oldStartIdx];
       newEndVnode = newCh[--newEndIdx];
     } else if (isSameVnode(oldEndVnode, newStartVnode)) {
       console.log('4命中');
       // 新前与旧后
       patchVnode(oldEndVnode, newStartVnode);
-      // 新后指向的节点，移动到旧前之前
-      parentNode.insertBefore(newEndVnode.elm, oldStartVnode.elm);
+      // 新后指向的节点，移动到旧前之前,因为当前匹配到的是新前，所以最终顺序，插入节点一定是在已经匹配过的元素的前面。所以是旧前之前。
+      parentNode.insertBefore(newStartVnode.elm, oldStartVnode.elm);
       oldEndVnode = oldCh[--oldEndIdx];
       newStartVnode = newCh[++newStartIdx];
     } else {
-      // 四种情况都未匹配上，则新newStartIdx +1 ，
+      // 四种情况都未匹配上，个人认为 新newStartIdx +1 ，
+      // newStartVnode = newCh[++newStartIdx];
+
       // 四种情况都未匹配上时做何种处理？
+      // 上面的处理其实是不对的，四种匹配不能保证全部的匹配情况，有可能新老虚拟节点是可以匹配上的，但是用着四种方式无法匹配。
+
+      /* 源码中这段的处理，重点就是提升了匹配效率。如果用传统的数组循环寻找，那么每次都要遍历新旧虚拟节点
+         而使用了keyMap后，只需要第一次未匹配上时遍历还没有进行匹配的旧虚拟节点项。后续匹配相当于读取缓存了，非常高效。
+      */
+      if (!keyMap) {
+        keyMap = {};
+        // 寻找key的map,去旧虚拟节点中寻找key
+        for (let i = oldStartIdx; i <= oldEndIdx; i++) {
+          const key = oldCh[i].key;
+          if (key != null) {
+            keyMap[key] = i;
+          }
+        }
+      }
+      // 寻找当前这项(newStartIndex)，这项在keyMap中的映射的位置序号。
+      const idxInOld = keyMap[newStartVnode.key];
+      if (idxInOld == undefined) {
+        // 判断，如果idxInOld是undefined表示它是全新的项，需要新增
+        parentNode.insertBefore(createEle(newStartVnode), oldStartVnode.elm);
+      } else {
+        // 如果不是undefined，不是全新的项，旧虚拟节点中存在，但是四种匹配未匹配上
+
+        // 这里其实还有一种情况，就是虽然key相同，但是key不同，这种情况这个弱化版先不考虑了。
+        const elmToMove = oldCh[idxInOld];
+        patchVnode(elmToMove, newStartVnode);
+        // 移动节点位置，移动到未开始匹配的旧虚拟节点前面，这样才和新虚拟节点的顺序一致。
+
+        // 将处理过的项设置为undefined，下次循环时跳过
+        oldCh[idxInOld] = undefined;
+        parentNode.insertBefore(elmToMove.elm, oldStartVnode.elm);
+      }
       newStartVnode = newCh[++newStartIdx];
     }
 
     testI++;
   }
+  // 验证程序是否有问题，是因为testI跳出的循环就是存在问题的
+  console.log(testI, 'testI');
   /* 循环结束了 */
   if (newStartIdx <= newEndIdx) {
     // 新虚拟dom有节点未被匹配，这些未被匹配的节点需要新增
