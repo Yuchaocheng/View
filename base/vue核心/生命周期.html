@@ -12,8 +12,10 @@
 <body>
     <div id="app">
         <button @click="destroySelf">销毁</button>
-        <button @click="test">点我n+1</button>
-        {{n}}
+      <button @click="test">点我n+1</button>
+         <!--  {{n}} -->
+        {{n.m}}
+        {{arr[0]}}
     </div>
     <script>
         // 全局注册过滤器
@@ -21,16 +23,32 @@
             el: "#app",
             data: {
                 time: Date.now(),
-                n: 1
+                n: {m:2},
+                arr: ['a']
             },
             methods: {
                 destroySelf() {
                     this.$destroy()
                 },
                 test() {
-                    console.log(11111111111);
-                    this.n++;
+                    this.arr[0] = 2;
+                    setTimeout(()=>{
+                        console.log(this.n.m);
+                        console.log(this.arr[0]);
+                    },2000)
+                    // this.n++;
                 }
+            },
+            created() {
+                debugger
+            },
+            beforeMount() {
+                debugger
+            },
+            mounted() {
+                // this.n = 2
+                console.log(this, 111);
+                debugger
             },
         })
     </script>
