@@ -6,6 +6,7 @@ import App from './App.vue';
 import snabbdom from './views/snabbdom/snabbdom.vue';
 import test from './views/test.vue';
 import reactive from './views/reactive/reactive.vue';
+import ASTTem from "./ASTTem"
 
 const routes = [
   { path: '/snabbdom', component: snabbdom },

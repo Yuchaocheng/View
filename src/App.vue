@@ -9,6 +9,9 @@
 
 <script>
 export default {
+  components:{
+    test:''
+  },
   methods: {
     open() {}
   },
