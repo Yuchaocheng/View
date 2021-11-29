@@ -1,11 +1,8 @@
-class AST {
-  constructor() {
-    this.fibCache = {}; // 斐波那契缓存对象，如果不想用全局对象，可以用闭包
-    // console.log('AST');
+import './stackPractice';
+import parse from './parse'; //parse函数，解析模板字符串核心函数
 
-    // 测试栈思想
-    this.smartRepeat('2[1[a]2[b]3[c]]');
-  }
+class AST {
+  constructor() {}
   // 算法储备 - 指针思想，所谓指针就是下标位置，即index。也称为标记法。
   // 寻找连续重复次数最多的字符
   // 个人实现
@@ -129,70 +126,6 @@ class AST {
 
   // 栈算法
   // 只能重复，将  2[1[a]2[1[b]3[c]]] =>
-
-  smartRepeat(str) {
-    const template = {
-      loop: 2,
-      children: [
-        {
-          loop: 1,
-          char: 'a'
-        },
-        {
-          loop: 2,
-          children: [
-            {
-              loop: 1,
-              char: 'b'
-            },
-            {
-              loop: 3,
-              char: 'c'
-            }
-          ]
-        }
-      ]
-    };
-    let result = '';
-    const fn = obj => {
-      let s = '';
-      if (obj.children) {
-        s += obj.children
-          .reduce((pre, cur) => {
-            return pre + fn(cur);
-          }, '')
-          .repeat(obj.loop);
-      } else if (obj.char) {
-        s += obj.char.repeat(obj.loop);
-      }
-      return s;
-    };
-    let r1 = fn(template);
-    console.log(r1, 'r1');
-    // const stack = [];
-    // const arr = [];
-    // for (let i = 0; i < str.length; i++) {
-    //   if (str[i] === '[') {
-    //     stack.push({
-    //       index: i,
-    //       loopNum: +str[i - 1]
-    //     });
-    //   }
-    //   if (str[i] === ']') {
-    //     const lastObj = stack.pop();
-    //     lastObj.char = str.slice(lastObj.index + 1, i);
-    //     arr.push(lastObj);
-    //   }
-    // }
-    // console.log(arr, 'arr');
-    // arr.forEach(item => {
-    //   if (!/[\[\]]/.test(item.char)) {
-    //     result += item.char.repeat(item.loopNum);
-    //   }
-    // });
-    // console.log(result, 'result');
-    return result;
-  }
 }
 
 export default new AST();
