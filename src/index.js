@@ -6,11 +6,13 @@ import App from './App.vue';
 import snabbdom from './views/snabbdom/snabbdom.vue';
 import test from './views/test.vue';
 import reactive from './views/reactive/reactive.vue';
+import AST from './views/AST/AST.vue';
 
 const routes = [
   { path: '/snabbdom', component: snabbdom },
   { path: '/test', component: test },
-  { path: '/reactive', component: reactive }
+  { path: '/reactive', component: reactive },
+  { path: '/AST', component: AST }
 ];
 const router = new VueRouter({
   routes
