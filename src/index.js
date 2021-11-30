@@ -7,12 +7,14 @@ import snabbdom from './views/snabbdom/snabbdom.vue';
 import test from './views/test.vue';
 import reactive from './views/reactive/reactive.vue';
 import AST from './views/AST/AST.vue';
+import myVue from './views/myVue/myVue.vue';
 
 const routes = [
   { path: '/snabbdom', component: snabbdom },
   { path: '/test', component: test },
   { path: '/reactive', component: reactive },
-  { path: '/AST', component: AST }
+  { path: '/AST', component: AST },
+  { path: '/myVue', component: myVue }
 ];
 const router = new VueRouter({
   routes

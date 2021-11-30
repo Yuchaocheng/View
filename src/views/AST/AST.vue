@@ -10,6 +10,8 @@ export default {
     console.log(AST.transArr2([1, 2, [3, [4, 5], 6], 7, [8], 9]));
     this.testFindSeries();
     this.testFib();
+
+    AST.testParse()
   },
   methods: {
     // 斐波那契数列测试

@@ -3,6 +3,21 @@ import parse from './parse'; //parse函数，解析模板字符串核心函数
 
 class AST {
   constructor() {}
+  // 测试parse函数
+  testParse() {
+    const templateStr = `<div>
+        <h3 class="h 3" id="test_h3">你好</h3>
+        叉叉查查错错
+        <ul>
+            aaaaaaa
+            <li>A</li>
+            bbbbbb
+            <li>B</li>
+            <li>C</li>
+        </ul></div>`;
+    const AST = parse(templateStr);
+    console.log(AST, 'AST');
+  }
   // 算法储备 - 指针思想，所谓指针就是下标位置，即index。也称为标记法。
   // 寻找连续重复次数最多的字符
   // 个人实现

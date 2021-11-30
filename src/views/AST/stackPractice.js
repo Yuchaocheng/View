@@ -40,26 +40,6 @@ function compile(template) {
     }, '')
     return result
 }
-console.log(compile([
-    {
-        loop: 2,
-        children: [
-            {
-                loop: 1,
-                char: 'a'
-            },
-            {
-                loop: 2,
-                char: 'b'
-            },
-            {
-                loop: 3,
-                char: 'c'
-            },
-        ]
-    }
-]
-));
 
 // 2[1[a]2[b]3[c]]  =>   abbcccabbccc
 function createTempalte(str) {
@@ -95,9 +75,9 @@ function smartRepeat(str) {
     const template = createTempalte(str);
     return compile(template)
 }
-console.log(smartRepeat('1[abc]2[de]3[1[f]2[g]4[1[h]3[i]]]'));
-console.log(smartRepeat('3[2[a]2[b]]'));
-console.log(1111111);
+// console.log(smartRepeat('1[abc]2[de]3[1[f]2[g]4[1[h]3[i]]]'));
+// console.log(smartRepeat('3[2[a]2[b]]'));
+// console.log(1111111);
 
 // 使用栈优雅解决
 function smartRepeat2(str) {
@@ -141,9 +121,9 @@ function smartRepeat2(str) {
     return result
 }
 
-console.log(smartRepeat2('1[abc]2[de]3[1[f]2[g]4[1[h]3[i]]]'));
-console.log(smartRepeat2('3[2[a]2[b]]'));
-console.log(22222222);
+// console.log(smartRepeat2('1[abc]2[de]3[1[f]2[g]4[1[h]3[i]]]'));
+// console.log(smartRepeat2('3[2[a]2[b]]'));
+// console.log(22222222);
 
 // 工作中常用的正则方法
 /*
@@ -189,6 +169,6 @@ function smartRepeat3(str) {
     }
     return result
 }
-console.log(smartRepeat3('1[abc]2[de]3[1[f]2[g]4[1[h]3[i]]]'));
-console.log(smartRepeat3('3[2[a]2[b]]'));
-console.log(3333333333);
+// console.log(smartRepeat3('1[abc]2[de]3[1[f]2[g]4[1[h]3[i]]]'));
+// console.log(smartRepeat3('3[2[a]2[b]]'));
+// console.log(3333333333);
