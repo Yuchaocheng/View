@@ -20,9 +20,9 @@ const parsePath = str => {
   };
 };
 export default class Watcher {
-  constructor(target, expression, callback) {
+  constructor(vm, expression, callback) {
     this.id = uid++;
-    this.target = target;
+    this.vm = vm;
     this.getter = parsePath(expression);
     this.callback = callback;
     this.value = this.get();
@@ -35,23 +35,22 @@ export default class Watcher {
   }
   // 得到并且唤起
   getAndInvoke(cb) {
-    debugger
     const value = this.get();
     // 当值发生改变时
     if (value !== this.value || typeof value === 'object') {
       const oldValue = this.value;
       this.value = value;
-      cb.call(this.target, value, oldValue);
+      cb.call(this.vm, value, oldValue);
     }
   }
   get() {
     // 进入依赖收集阶段，让全局的Dep.target设置为wathcer实例本身，那么就是进入依赖收集阶段。
     Dep.target = this;
-    const obj = this.target;
+    const vm = this.vm;
     let value;
     // 只要能找，就一直找
     try {
-      value = this.getter(obj);
+      value = this.getter(vm);
     } finally {
       Dep.target = null;
     }

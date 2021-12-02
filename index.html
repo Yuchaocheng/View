@@ -12,17 +12,17 @@
     <div id="app">
     </div>
     <div id="myVue">
-        <div>
-            <h3 class="h 3" id="test_h3">你好</h3>
-            叉叉查查错错
-            <ul>
-                aaaaaaa
-                <li>A</li>
-                bbbbbb
-                <li>B</li>
-                <li>C</li>
-            </ul>
-        </div>
+
+        <h3 class="h 3" id="test_h3" v-show="x">你好</h3>
+        {{x}} <br>
+        <input type="text" v-model="x">
+        <ul>
+            {{a.b}}
+            <li>A</li>
+            bbbbbb
+            <li>B</li>
+            <li>C</li>
+        </ul>
     </div>
 </body>
 

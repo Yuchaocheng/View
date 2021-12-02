@@ -14,14 +14,17 @@ export default class Dep {
   depend() {
     // Dep.target实际上是一个全局性质的变量
     if (Dep.target) {
-      this.addSub(Dep.target);
+      /* 判断是否是重复依赖，若不做判断，get时候会一直收集重复依赖 */
+      if (!this.subs.includes(Dep.target)) {
+        this.addSub(Dep.target);
+      }
     }
   }
   // 通知所有watcher对象更新视图，即分发消息。
   notify() {
-    debugger
     // 源码中是这么写的，为什么要浅克隆一份？
     const subs = this.subs.slice();
+    console.log(subs, 'subs');
     for (let i = 0; i < subs.length; i++) {
       subs[i].update();
     }
