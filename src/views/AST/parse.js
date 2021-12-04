@@ -12,8 +12,6 @@ export default function parse(templateStr) {
     restStr = templateStr.slice(index);
     /* 匹配标签开头 */
     /* 开头不能是数字，后面允许有数字 */
-    // console.log(restStr);
-    // debugger
     if (startRexExp.test(restStr)) {
       // 压栈
       const startTag = RegExp.$1;

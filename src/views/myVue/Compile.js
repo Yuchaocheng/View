@@ -1,9 +1,16 @@
 import Watcher from '../reactive/Watcher';
+import parse from '../AST/parse';
 
 export default class Compile {
   constructor(el, vue) {
     this.$vue = vue;
     this.$el = el;
+
+    const templateStr = this.$el.outerHTML;
+    console.log(templateStr,111);
+    console.log(parse(templateStr));
+    debugger;
+
     if (this.$el) {
       // 调用函数，让节点变为fragment,类似于mustache中的tokens。vue内部实际上用的是虚拟节点，这里使用fragment做简单处理。
       let fragment = this.node2Fragment(this.$el);

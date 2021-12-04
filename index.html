@@ -12,16 +12,10 @@
     <div id="app">
     </div>
     <div id="myVue">
-
         <h3 class="h 3" id="test_h3" v-show="x">你好</h3>
-        {{x}} <br>
-        <input type="text" v-model="x">
+        {{x}}
         <ul>
-            {{a.b}}
-            <li>A</li>
-            bbbbbb
-            <li>B</li>
-            <li>C</li>
+            <li v-for="item in list" :key="item">{{item}}</li>
         </ul>
     </div>
 </body>
