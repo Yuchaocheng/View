@@ -10,28 +10,30 @@
 </head>
 
 <body>
-    <div id="app">
-        <h3 class="h 3" id="test_h3" v-show="x">你好</h3>
-        {{x}} <br>
+    <div id="myVue">
+        <div>
+            {{x}}
+        </div>
+        <button onclick="add()">x++</button>
         <input type="text" v-model="x">
         <ul>
-            {{a.b}}
-            <li>A</li>
-            bbbbbb
-            <li>B</li>
-            <li>C</li>
+            <li v-for="item in list" :key="item">{{item}}</li>
         </ul>
     </div>
     <script>
         const vm = new Vue({
-            el: "#app",
+            el: "#myVue",
             data: {
-                x: -1,
+                x: 1,
                 a: {
                     b: 1
                 },
+                list: ['A', 'B', 'C']
             }
         })
+        function add(params) {
+            vm.x++
+        }
     </script>
 </body>
 

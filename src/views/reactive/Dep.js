@@ -14,6 +14,7 @@ export default class Dep {
   depend() {
     // Dep.target实际上是一个全局性质的变量
     if (Dep.target) {
+      console.log(11111111);
       /* 判断是否是重复依赖，若不做判断，get时候会一直收集重复依赖 */
       if (!this.subs.includes(Dep.target)) {
         this.addSub(Dep.target);

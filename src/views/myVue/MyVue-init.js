@@ -1,5 +1,6 @@
 import Compile from './Compile';
 import observe from '../reactive/observe';
+import Watcher from '../reactive/Watcher';
 
 /* 对vue的测试，要用一个不被Vue编译的DOM节点 */
 class MyVue {
@@ -9,6 +10,9 @@ class MyVue {
     // 将数据变为响应式
     observe(this._data);
     this._initData();
+    this._initWatch(options.watch);
+    console.log(this, 'myVue');
+    //模板编译
     new Compile(options.el, this);
   }
   _initData() {
@@ -24,6 +28,13 @@ class MyVue {
       });
     });
   }
+  _initWatch(watch) {
+    if (Object.prototype.toString.call(watch) === '[object Object]') {
+      /* 每个属性都设置Watcher */
+      Object.keys(watch).forEach(key => {
+        new Watcher(this, key, watch[key]);
+      });
+    }
+  }
 }
 export default MyVue;
-

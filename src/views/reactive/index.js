@@ -4,28 +4,30 @@ class Reactive {
   constructor() {
     this.testObj = {
       a: {
-        a1: 1,
-        a2: 2
+        a1: 1
       },
       b: 2,
       /* c作为testObj对象的一个属性，修改它时是响应式的；但是c的值是一个数组，修改数组的值并不是响应式的
-         即直接对c进行赋值时，响应式操作；而对c的值进行赋值获取其他操作时，不是响应式的。
-
-         还有一个问题，数组内有对象或者数组时怎么处理？
+         即直接对c进行赋值时，响应式操作；而对c的值进行修改，不是响应式的。
       */
-      c: [2, 3, { c1: 'c1' }]
+      c: [2, 3]
     };
     //
   }
   init() {
     const { testObj } = this;
-    observe(testObj);
-    console.log(testObj, 22);
-    setTimeout(() => {
-      testObj.b = 22
-    }, 5000);
-    new Watcher(testObj, 'b', () => {
-      console.log('Watcher 回调执行');
+    observe(this.testObj);
+    this.testObj.b = 20;
+    new Watcher(this.testObj, 'b', () => {
+      console.log('b被改变了');
+    });
+    this.testObj.a.a1 = 10;
+    new Watcher(this.testObj, 'a.a1', () => {
+      console.log('a1被改变了');
+    });
+    this.testObj.c.push(3);
+    new Watcher(this.testObj, 'c', () => {
+      console.log('c被改变了');
     });
   }
   changeArray() {

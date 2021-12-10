@@ -15,6 +15,7 @@ class MySnabbdom {
     // 创建patch函数
     const patch = init([classModule, propsModule, styleModule, eventListenersModule]);
     this.patch = patch;
+    this.h = h;
   }
   // 使用useSnabbdom库
   useSnabbdom() {
@@ -34,7 +35,7 @@ class MySnabbdom {
     const vnode = h('div#container.two.classes', { on: { click: clickDom } }, [
       h('span#test', { style: { fontWeight: 'bold' } }, 'This is bold'),
       ' and this is just normal text',
-      h('a', { props: { href: '/' } }, "I'll take you places!")
+      h('a', { props: { href: '/' } }, ["I'll take you places!"])
     ]);
     // console.log(vnode, 'vnode');
     // Patch into empty DOM element – this modifies the DOM as a side effect
@@ -44,9 +45,9 @@ class MySnabbdom {
     */
     //
     const test = patch(container, vnode);
-    const dom = document.createElement('li');
-    const test2 = patch(dom, h('div', 11));
-    console.log(test2, 111);
+    // const dom = document.createElement('li');
+    // const test2 = patch(dom, h('div', 11));
+    // console.log(test2, 111);
   }
   // 使用自己编写的h
   useMyH() {
@@ -69,14 +70,14 @@ class MySnabbdom {
       h('li', { key: 'A1' }, 'A111'),
       h('li', { key: 'B2' }, 'B2222'),
       h('li', { key: 'C3' }, 'C33'),
-      h('li', { key: 'D4' }, 'D44'),
+      h('li', { key: 'D4' }, 'D44')
     ]);
     if (isFirst) {
       this.oldVnode = h('ul', [
         h('li', { key: 'B2' }, 'B2'),
         h('li', { key: 'A1' }, 'A1'),
         h('li', { key: 'D4' }, 'D4'),
-        h('li', { key: 'C3' }, 'C3'),
+        h('li', { key: 'C3' }, 'C3')
         // h('li', { key: 'E5' }, 'E5'),
       ]);
       //  第一次上树

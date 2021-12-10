@@ -1,25 +1,46 @@
 <template>
   <div>
-    <el-button size="small" @click="add">自增</el-button>
+    <!-- <render-test></render-test> -->
   </div>
 </template>
 
 <script>
-import myVue from './myVue';
+import myVue from './MyVue';
+import renderTest from './renderTest.vue';
 export default {
+  components: {
+    renderTest
+  },
   data() {
     return {};
   },
   methods: {
-    add() {
-      if (myVue.x >9) {
-        myVue.x = 0;
-      } else {
-        myVue.x++;
-      }
+    // 测试自己编写的Vue
+    testMyVue() {
+      const el = document.querySelector('#myVue');
+      const vm = new myVue({
+        el,
+        data: {
+          x: 1,
+          a: {
+            b: 2
+          },
+        },
+        watch: {
+          x() {
+            console.log(`x改变啦`);
+          }
+        }
+      });
+      const addBtn = document.querySelector('#addBtn');
+      addBtn.onclick = () => {
+        vm.x++;
+      };
     }
   },
-  created() {}
+  created() {
+    this.testMyVue();
+  }
 };
 </script>
 
