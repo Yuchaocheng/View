@@ -14,17 +14,17 @@ const updateChildren = (parentNode, oldCh, newCh) => {
   console.log(newCh);
   console.log('chchchchchchch');
   let testI = 0; // 开发时防止死循环，开发完后删除。
-  let oldStartIdx = 0; // 旧前
-  let newStartIdx = 0; // 新前
-  let oldEndIdx = oldCh.length - 1;
-  let newEndIdx = newCh.length - 1;
-  let oldStartVnode = oldCh[oldStartIdx];
-  let oldEndVnode = oldCh[oldEndIdx];
-  let newStartVnode = newCh[newStartIdx];
-  let newEndVnode = newCh[newEndIdx];
-  let keyMap = null;
-  /* 该判断条件就说明，要么新虚拟节点已经一个一个参与完匹配了，不管是否匹配上；要么旧虚拟节点已经被匹配完了。这两种情况任意发生一种，循环终止 */
-  while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx && testI < 100) {
+  let oldStartIdx = 0; // 旧前指针
+  let newStartIdx = 0; // 新前指针
+  let oldEndIdx = oldCh.length - 1;//旧后指针
+  let newEndIdx = newCh.length - 1;//新后指针
+  let oldStartVnode = oldCh[oldStartIdx];//旧前虚拟DOM
+  let oldEndVnode = oldCh[oldEndIdx];//旧后虚拟DOM
+  let newStartVnode = newCh[newStartIdx];//新前虚拟ODM
+  let newEndVnode = newCh[newEndIdx];//新后虚拟DOM
+  let keyMap = null; // 旧虚拟DOM缓存对象
+  /* 该判断条件就说明，要么新虚拟节点已经遍历完了，不管是否匹配上；要么旧虚拟节点已经被匹配完了。这两种情况任意发生一种，循环终止 */
+  while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx && testI < 1000) {
     /* 这两种情况说明oldStartVnode或者oldEndVnode已经被处理了 */
     if (oldStartVnode == null) {
       oldStartVnode = oldCh[++oldStartIdx];
@@ -36,7 +36,7 @@ const updateChildren = (parentNode, oldCh, newCh) => {
     if (isSameVnode(oldStartVnode, newStartVnode)) {
       /* 
       新前与旧前匹配，实际应用中，若v-for循环的数组长度未变化，只变化各项内容时。只用到该种判断即可完成。
-      若是按顺在在数组末尾添加项，除添加项外的其他项也只用该种匹配，添加项4种匹配都匹配不上，因为旧虚拟节点中没有。
+      若是按顺序在在数组末尾添加项，除添加项外的其他项也只用该种匹配，添加项4种匹配都匹配不上，因为旧虚拟节点中没有。
       所以新前与旧前，就占了开发中最有可能出现的两种情况。
       */
       console.log('1命中');
@@ -53,7 +53,7 @@ const updateChildren = (parentNode, oldCh, newCh) => {
       console.log('3命中');
       // 新后与旧前
       patchVnode(oldStartVnode, newEndVnode);
-      /* insertBefore插入一个已经在dom树上的节点，它就会移动，这一点很关键。 */
+      /* insertBefore插入一个已经在DOM树上的DOM节点，该DOM节点就会移动，这一点很关键。 */
       // 新前指向的节点，移动到旧后之后。因为现在是新后命中，所以最终的排序，插入节点一定是在已经匹配过的元素的最后。所以是旧后之后
       parentNode.insertBefore(newEndVnode.elm, oldEndVnode.elm.nextSibling);
       oldStartVnode = oldCh[++oldStartIdx];
@@ -67,12 +67,7 @@ const updateChildren = (parentNode, oldCh, newCh) => {
       oldEndVnode = oldCh[--oldEndIdx];
       newStartVnode = newCh[++newStartIdx];
     } else {
-      // 四种情况都未匹配上，个人认为 新newStartIdx +1 ，
-      // newStartVnode = newCh[++newStartIdx];
-
-      // 四种情况都未匹配上时做何种处理？
-      // 上面的处理其实是不对的，四种匹配不能保证全部的匹配情况，有可能新老虚拟节点是可以匹配上的，但是用着四种方式无法匹配。
-
+      // 四种情况都未匹配上时循环遍历旧虚拟DOM去匹配。
       /* 源码中这段的处理，重点就是提升了匹配效率。如果用传统的数组循环寻找，那么每次都要遍历新旧虚拟节点
          而使用了keyMap后，只需要第一次未匹配上时遍历还没有进行匹配的旧虚拟节点项。后续匹配相当于读取缓存了，非常高效。
       */
@@ -94,7 +89,7 @@ const updateChildren = (parentNode, oldCh, newCh) => {
       } else {
         // 如果不是undefined，不是全新的项，旧虚拟节点中存在，但是四种匹配未匹配上
 
-        // 这里其实还有一种情况，就是虽然key相同，但是key不同，这种情况这个弱化版先不考虑了。
+        // 这里其实还有一种情况，就是虽然key相同，但是sel不同，这种情况这个弱化版先不考虑了。
         const elmToMove = oldCh[idxInOld];
         patchVnode(elmToMove, newStartVnode);
         // 移动节点位置，移动到未开始匹配的旧虚拟节点前面，这样才和新虚拟节点的顺序一致。
@@ -133,11 +128,7 @@ const updateChildren = (parentNode, oldCh, newCh) => {
 // 当新老虚拟节点是同一个时，进行精细化比较，因为需要递归，所以把函数单独提起出来。
 // patchNode后，虚拟节点elm就不能是null了
 const patchVnode = (oldVnode, newVnode) => {
-  // 是同一个节点，进行精细化比较，具体情况查看patch函数流程图
-  if (oldVnode === newVnode) {
-    // 新旧节点是内存中的同一个对象时，就什么都不做
-    return;
-  }
+  // 是同一个节点，进行精细化比较
   if (newVnode.text || newVnode.text === '') {
     if (newVnode.text === oldVnode.text) {
       // 新旧节点子节点都是文本节点，且text相同时，不需要做处理
@@ -159,6 +150,8 @@ const patchVnode = (oldVnode, newVnode) => {
     } else if (oldVnode.children) {
       // 最复杂的情况，新老虚拟节点都有children，就需要对比每一个子节点
       updateChildren(oldVnode.elm, oldVnode.children, newVnode.children);
+      // 个人思路编写updateChildren
+      // updateChildren_self(oldVnode.elm, oldVnode.children, newVnode.children);
     }
   }
 };
@@ -182,5 +175,39 @@ export default (oldVnode, newVnode) => {
     }
     oldVnode.elm.parentNode.insertBefore(newDom, oldVnode.elm);
     oldVnode.elm.parentNode.removeChild(oldVnode.elm);
+  }
+  return newVnode;
+};
+
+/* 
+个人思路实现子节点对比更新，函数接收3个参数，旧虚拟节点的DOM节点，新旧虚拟节点的子节点数组
+*/
+const updateChildren_self = (parentNode, oldCh, newCh) => {
+  // 遍历新节点，去老节点中进行匹配
+  newCh.forEach(newChild => {
+    const matchOldChild = oldCh.find(oldChild => isSameVnode(oldChild, newChild));
+    if (matchOldChild) {
+      // 字节点中增加一个属性，标志该节点成功匹配上了
+      matchOldChild.isMatched = true;
+      newChild.isMatched = true;
+      // 更新子节点
+      patchVnode(matchOldChild, newChild);
+    }
+  });
+  // 遍历结束后，统计未被匹配的新虚拟子节点和旧虚拟子节点
+  const noMatchNewCh = newCh.filter(newChild => !newChild.isMatched);
+  const noMatchOldCh = oldCh.filter(oldChild => !oldChild.isMatched);
+
+  // 未被匹配的新虚子节点需要插入
+  if (noMatchNewCh) {
+    noMatchNewCh.forEach(noMatchNew => {
+      parentNode.appendChild(createEle(noMatchNew));
+    });
+  }
+  // 未被匹配的旧虚拟自己点需要删除
+  if (noMatchOldCh) {
+    noMatchOldCh.forEach(noMatchOld => {
+      parentNode.removeChild(noMatchOld.elm);
+    });
   }
 };

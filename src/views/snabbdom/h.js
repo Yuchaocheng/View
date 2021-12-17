@@ -37,7 +37,6 @@ export default function(sel, data, c) {
     if (Array.isArray(c)) {
       return vnode(sel, data, c);
     }
-    // snabbdom允许三个参数时，第三个参数直接返回h函数运行结果，但vue中不允许，所以这里和vue保持一致
     throw new Error('参数类型错误！');
   }
 }

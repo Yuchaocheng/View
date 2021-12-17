@@ -19,17 +19,10 @@ class MySnabbdom {
   }
   // 使用useSnabbdom库
   useSnabbdom() {
+    const { patch } = this;
     const clickDom = e => {
       console.log(e);
     };
-    // 创建patch函数
-    const patch = init([
-      // Init patch function with chosen modules
-      classModule, // makes it easy to toggle classes
-      propsModule, // for setting properties on DOM elements
-      styleModule, // handles styling on elements with support for animations
-      eventListenersModule // attaches event listeners
-    ]);
     const container = document.getElementById('container');
     // 创建虚拟节点
     const vnode = h('div#container.two.classes', { on: { click: clickDom } }, [
@@ -37,6 +30,7 @@ class MySnabbdom {
       ' and this is just normal text',
       h('a', { props: { href: '/' } }, ["I'll take you places!"])
     ]);
+    console.log(vnode, 'vnode');
     // console.log(vnode, 'vnode');
     // Patch into empty DOM element – this modifies the DOM as a side effect
     /* 
@@ -51,17 +45,37 @@ class MySnabbdom {
   }
   // 使用自己编写的h
   useMyH() {
-    const patch = this.patch;
-    const result = H('ul', { class: { myH: true } }, [
-      H('li', 'A'),
-      H('li', 'B'),
-      H('li', [H('span', 11), H('span', { class: { text: true } }, 22)])
-    ]);
-    if (patch) {
-      const dom = document.getElementById('myH');
-      /* 自己编写的h函数可以直接运用在patch函数上，说明是成功的 */
-      patch(dom, result);
-    }
+    const { patch } = this; 
+    const vnode = 
+      h('ul',[
+        h('li',{key:'A'},'A'),
+        h('li',{key:'B'},'B'),
+        h('li',{key:'C'},'C'),
+      ])
+      console.log(vnode, 'vnode22');
+      let newVnode =
+        h('ul',[
+          h('li',{key:'A'},'A'),
+          // h('li',{key:'B'},'B'),
+          h('li',{key:'C'},'C'),
+          h('li',{key:'D'},'D'),
+        ])
+      ;
+    const container = document.getElementById('container')
+    let oldVnode =  myPatch(container,vnode)
+    oldVnode =  myPatch(oldVnode,newVnode)
+
+    // const patch = this.patch;
+    // const result = H('ul', { class: { myH: true } }, [
+    //   H('li', 'A'),
+    //   H('li', 'B'),
+    //   H('li', [H('span', 11), H('span', { class: { text: true } }, 22)])
+    // ]);
+    // if (patch) {
+    //   const dom = document.getElementById('myH');
+    //   /* 自己编写的h函数可以直接运用在patch函数上，说明是成功的 */
+    //   patch(dom, result);
+    // }
   }
   useMyPatch(isFirst) {
     const container = document.getElementById('container');

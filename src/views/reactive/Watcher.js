@@ -31,20 +31,16 @@ export default class Watcher {
     this.run();
   }
   run() {
-    this.getAndInvoke(this.callback);
-  }
-  // 得到并且唤起
-  getAndInvoke(cb) {
     const value = this.get();
     // 当值发生改变时
     if (value !== this.value || typeof value === 'object') {
       const oldValue = this.value;
       this.value = value;
-      cb.call(this.vm, value, oldValue);
+      this.callback.call(this.vm, value, oldValue);
     }
   }
   get() {
-    // 进入依赖收集阶段，让全局的Dep.target设置为wathcer实例本身，那么就是进入依赖收集阶段。
+    // 进入依赖收集阶段，让全局的Dep.target设置为wathcer实例本身。
     Dep.target = this;
     const vm = this.vm;
     let value;
@@ -52,6 +48,7 @@ export default class Watcher {
     try {
       value = this.getter(vm);
     } finally {
+      // 依赖收集结束
       Dep.target = null;
     }
     return value;

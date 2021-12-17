@@ -31,8 +31,7 @@ methodsNeedChange.forEach(methodName => {
       if (inserted.length) {
         this.__ob__.observeArray(inserted);
       }
-      console.log(`你调用了数组${methodName} 方法`);
-      this.__ob__.Dep.notify();
+      this.__ob__.dep.notify();
 
       return result;
     },

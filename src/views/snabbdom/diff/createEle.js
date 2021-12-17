@@ -5,7 +5,7 @@ export default function createEle(vnode) {
       dom.appendChild(createEle(childVnode));
     });
   } else if (vnode.text) {
-    // 阉割版不允许又有children又有text的情况，二者互斥
+    // 简化版不允许又有children又有text的情况，二者互斥
     dom.innerHTML = vnode.text;
   }
   vnode.elm = dom;

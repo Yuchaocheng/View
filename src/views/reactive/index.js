@@ -10,25 +10,28 @@ class Reactive {
       /* c作为testObj对象的一个属性，修改它时是响应式的；但是c的值是一个数组，修改数组的值并不是响应式的
          即直接对c进行赋值时，响应式操作；而对c的值进行修改，不是响应式的。
       */
-      c: [2, 3]
+      c: [2, 3, [4]]
     };
     //
   }
   init() {
-    const { testObj } = this;
     observe(this.testObj);
-    this.testObj.b = 20;
+
+    /* 模板编译时，如果模板中用到的数据，就主动调用Watcher类进行监听 */
     new Watcher(this.testObj, 'b', () => {
       console.log('b被改变了');
     });
-    this.testObj.a.a1 = 10;
+    this.testObj.b = 20;
+
     new Watcher(this.testObj, 'a.a1', () => {
       console.log('a1被改变了');
     });
-    this.testObj.c.push(3);
+    this.testObj.a.a1 = 10;
+
     new Watcher(this.testObj, 'c', () => {
       console.log('c被改变了');
     });
+    this.testObj.c.push(3);
   }
   changeArray() {
     const { testObj } = this;
