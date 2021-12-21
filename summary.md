@@ -300,7 +300,7 @@ const _h = (sel, data, children) => {
 };
 ```
 
-3. 执行 render 函数和 patch 函数
+## 3. 执行 render 函数和 patch 函数
    render 函数已经被创建出来了，执行 render 函数后便可以得到虚拟 DOM，为了先尽早看到结果，可以先用 snabbdom 库的 patch 函数进行虚拟 DOM 上树。后面再详细分析 patch 函数。render 函数和 patch 函数的执行，就是对视图的更新，所以将他们封装到一个函数内。
 
 ```
@@ -1099,3 +1099,5 @@ const updateChildren = (parentNode, oldCh, newCh) => {
   }
 };
 ```
+
+好了，到此为止本文中的双向绑定例子，总算可以全部由自己编写的代码验证了。上文展示的代码依然是不全的。需要完整代码的小伙伴可以去下载

@@ -2,6 +2,7 @@ import Watcher from '../reactive/Watcher';
 import parse from '../AST/parse';
 import createRender from './createRender';
 import snabbdom from '../snabbdom/MySnabbdom';
+import myPatch from '../snabbdom/diff/patch';
 import { h } from 'snabbdom';
 
 export default class Compile {
@@ -14,8 +15,6 @@ export default class Compile {
     const templateStr = this.$el.outerHTML;
     this.ast = parse(templateStr);
     this.renderFun = createRender(this.ast);
-    console.log(this.renderFun);
-    debugger;
     this.oldVnode = this.$el;
     this.update();
   }
@@ -44,7 +43,10 @@ export default class Compile {
     };
     const updateMain = () => {
       this.newVnode = this.renderFun.call(this.$vue, _h);
-      this.oldVnode = snabbdom.patch(this.oldVnode, this.newVnode);
+      /* 使用snabbdom库的patch函数 */
+      // this.oldVnode = snabbdom.patch(this.oldVnode, this.newVnode);
+      /* 使用自己编写的patch函数 */
+      this.oldVnode = myPatch(this.oldVnode, this.newVnode);
     };
     updateMain();
   }

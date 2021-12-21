@@ -16,12 +16,12 @@ const updateChildren = (parentNode, oldCh, newCh) => {
   let testI = 0; // 开发时防止死循环，开发完后删除。
   let oldStartIdx = 0; // 旧前指针
   let newStartIdx = 0; // 新前指针
-  let oldEndIdx = oldCh.length - 1;//旧后指针
-  let newEndIdx = newCh.length - 1;//新后指针
-  let oldStartVnode = oldCh[oldStartIdx];//旧前虚拟DOM
-  let oldEndVnode = oldCh[oldEndIdx];//旧后虚拟DOM
-  let newStartVnode = newCh[newStartIdx];//新前虚拟ODM
-  let newEndVnode = newCh[newEndIdx];//新后虚拟DOM
+  let oldEndIdx = oldCh.length - 1; //旧后指针
+  let newEndIdx = newCh.length - 1; //新后指针
+  let oldStartVnode = oldCh[oldStartIdx]; //旧前虚拟DOM
+  let oldEndVnode = oldCh[oldEndIdx]; //旧后虚拟DOM
+  let newStartVnode = newCh[newStartIdx]; //新前虚拟ODM
+  let newEndVnode = newCh[newEndIdx]; //新后虚拟DOM
   let keyMap = null; // 旧虚拟DOM缓存对象
   /* 该判断条件就说明，要么新虚拟节点已经遍历完了，不管是否匹配上；要么旧虚拟节点已经被匹配完了。这两种情况任意发生一种，循环终止 */
   while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx && testI < 1000) {
@@ -152,6 +152,14 @@ const patchVnode = (oldVnode, newVnode) => {
       updateChildren(oldVnode.elm, oldVnode.children, newVnode.children);
       // 个人思路编写updateChildren
       // updateChildren_self(oldVnode.elm, oldVnode.children, newVnode.children);
+      newVnode.elm = oldVnode.elm;
+    }
+  }
+  /* 对属性的更新，这里做简化处理，只对props属性进行更新，让例子双向绑定生效，并且没有比较新老属性是否相同 */
+  if (newVnode.data) {
+    const { props } = newVnode.data;
+    if (props) {
+      Object.keys(props).forEach(propName => (newVnode.elm[propName] = props[propName]));
     }
   }
 };
@@ -199,13 +207,13 @@ const updateChildren_self = (parentNode, oldCh, newCh) => {
   const noMatchOldCh = oldCh.filter(oldChild => !oldChild.isMatched);
 
   // 未被匹配的新虚子节点需要插入
-  if (noMatchNewCh) {
+  if (noMatchNewCh.length) {
     noMatchNewCh.forEach(noMatchNew => {
       parentNode.appendChild(createEle(noMatchNew));
     });
   }
   // 未被匹配的旧虚拟自己点需要删除
-  if (noMatchOldCh) {
+  if (noMatchOldCh.length) {
     noMatchOldCh.forEach(noMatchOld => {
       parentNode.removeChild(noMatchOld.elm);
     });

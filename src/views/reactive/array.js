@@ -7,6 +7,7 @@ const arrayPrototype = Array.prototype;
  Object.create是以某个对象为原型创造一个对象，重点在于创建
  Object.setPrototypeOf 是对象已经存在，将这个对象的原型强行指向另外一个对象
  */
+// arrayMethods对象以数组的原型对象为原型，这样保证其他的数组方法不受影响
 const arrayMethods = Object.create(arrayPrototype);
 methodsNeedChange.forEach(methodName => {
   /* 定义arrayMethods自己的方法，在原型链查找时就优先调用自身方法 */

@@ -37,6 +37,10 @@ class Observer {
   // 遍历数组项
   observeArray(arr) {
     for (let i = 0, l = arr.length; i < l; i++) {
+      /* 
+      为什么这里调用了observe方法而不是defineReactive？因为defineReactive必须保证父亲是对象，然后去监听子属性
+      这里数组每一项的数据类型是任意的。所以要从头开始调用observe方法监听
+      */
       observe(arr[i]);
     }
   }
