@@ -152,9 +152,9 @@ npm run dev
     })
     ```
 
-- 存在问题：
-  - 新增属性、删除属性, 界面不会更新。
-  - 直接通过下标修改数组, 界面不会自动更新。
+- 存在问题： （Vue3中解决）
+  - 新增属性、删除属性, 界面不会更新。 （新增属性，新增的属性没有defineReactive。删除属性不属于getter和Setter，所以监听失败。）
+  - 直接通过下标修改数组, 界面不会自动更新。（）
 
 ### Vue3.0的响应式
 
@@ -201,7 +201,7 @@ npm run dev
 ## 6.setup的两个注意点
 
 - setup执行的时机
-  - 在beforeCreate之前执行一次，this是undefined。
+  - 在beforeCreate之前执行一次，this是undefined。（所以无法在setup中使用data或者methods等等定义在vue实例对象上的属性，但是反过来可以在methods或者声明周期钩子等vue实例对象的属性中使用setup暴露出去的数据。这是顺序问题决定的。）
   
 - setup的参数
   - props：值为对象，包含：组件外部传递过来，且组件内部声明接收了的属性。
