@@ -36,7 +36,7 @@ export default {
   props: ['name', 'age', 'sex'],
   // setup中传入这些参数，只是为了让内部可用。props、attrs、slots都是为了取到外部传入的内容，emit是为了内部触发自定义事件
   // 这个context可能后续还会往里面扩展，所以定义成一个对象形式
-  setup(props, { attrs, slots, emit }) {
+  setup(props, { attrs, slots, emit, expose }) {
     const data = {
       test1: 1,
       test2: 2,
@@ -111,6 +111,12 @@ export default {
     let test1 = toRef(data, 'test1');
 
     const far = '1111';
+    /* Vue3.2新增的 expose 函数，允许自己定义组件向外暴露的参数，如果不定义默认为整个vue实例。一旦定义后就为expose传入的对象
+       它的使用场景主要是二个，第一个想要暴露不在setup中返回的属性或方法（特别是当setup返回渲染函数时，若不用expose，将无法暴露组件任何属性和方法），第二个组件隐藏，不希望外部看到组件内部过多的内容。 
+    */
+    expose({
+      emitSome,
+    });
     return {
       emitSome,
       data,

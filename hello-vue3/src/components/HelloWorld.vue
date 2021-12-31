@@ -1,9 +1,10 @@
 <template>
   <!-- Vue3 tempplate中允许没有根标签 -->
   <h1 class="hello">setUp</h1>
-  <div>msg:{{ msg }}</div>
+  <!-- ref="msg" 一旦增加了ref='msg'后，setup暴露的msg就变成了模板中的DOM了。 -->
+  <div >msg:{{ msg }}</div>
   <div>arr:{{ arr }}</div>
-  <hello-son name="wsy" :age="18" testAttr="test" @sonEvent="sonEvent">
+  <hello-son name="wsy" :age="18" testAttr="test" @sonEvent="sonEvent" ref="son">
     <span>default</span>
     <template v-slot:head>
       <div>headSlot</div>
@@ -39,6 +40,9 @@ export default {
     const { attrs, slots, emit } = context;
     /* ref函数麻烦的地方在于不管是什么类型的数据，必须使用value访问 */
     /* 基本类型被ref函数调用后，封装成了RefImpl实例对象，依旧使用getter、setter做响应式 */
+    /* 这里有个点注意下，ref函数定义的数据在setup函数中暴露出去后，如果模板中有与这个变量同名的ref，那么暴露出去的
+       值始终为这个模板的DOM对象。
+    */
     let msg = ref('setup 返回');
     /* 引用数据类型被ref函数调用后，封装成了RefImpl实例对象，该对象对value的调用是使用proxy监听。实际上它的value就是调用了reactive */
     let arr = ref([]);
@@ -50,8 +54,10 @@ export default {
     // console.log(msg, 'refMsg');
     // console.log(arr, 'arr');
     // console.log(obj, 'obj');
-
+    const son = ref(null);
     function mountedTest() {
+      console.log(son.value,'son.value');
+      console.log(son.value.emitSome,'son.value.emitSome');
       arr.value.push('a');
       /* proxy代理可以监听到数组项的改变 */
       setTimeout(() => {
@@ -70,7 +76,8 @@ export default {
       name: 'ycc',
       age: 18,
     });
-
+    const test2 =  reactive(1)
+    console.log(test2,'test2');
     function sonEvent(value) {
       console.log(value, 'value');
     }
@@ -78,6 +85,8 @@ export default {
       msg,
       arr,
       sonEvent,
+      /* 在渲染上下文中暴露son，并通过ref="son" 将其绑定到hello-son组件实例上 */
+      son
     };
   },
 };

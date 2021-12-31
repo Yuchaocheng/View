@@ -412,6 +412,10 @@ npm run dev
 ## 4.customRef
 
 - 作用：创建一个自定义的 ref，并对其依赖项跟踪和更新触发进行显式控制。
+（传入一个自定义函数，返回一个对象，对象上需要有get和set方法。
+  该自定义函数内部会传入track和trigger参数，track就是追踪数据变化，一般就是在get中调用，否则get中返回的数据不会追踪自身的变化。
+  trigger为触发，即触发页面重新渲染。
+）
 
 - 实现防抖效果：
 
@@ -502,6 +506,8 @@ npm run dev
 ## 1.Options API 存在的问题
 
 使用传统OptionsAPI中，新增或者修改一个需求，就需要分别在data，methods，computed里修改 。
+如果页面复杂，data和methods（或者其他选项）是分开的，数据和逻辑是隔开的。
+而如果再组合式API中，则可以都放置在一起。
 
 <div style="width:600px;height:370px;overflow:hidden;float:left">
     <img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/f84e4e2c02424d9a99862ade0a2e4114~tplv-k3u1fbpfcp-watermark.image" style="width:600px;float:left" />
@@ -509,6 +515,22 @@ npm run dev
 <div style="width:300px;height:370px;overflow:hidden;float:left">
     <img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/e5ac7e20d1784887a826f6360768a368~tplv-k3u1fbpfcp-watermark.image" style="zoom:50%;width:560px;left" /> 
 </div>
+  
+  
+# 五 新的组件
+
+## Fragment
+1. 在vue2 中：组件必须有有一个根标签
+2. 在vue3 中：组件可以没有根标签，内部会将多个标签包含在一个Fragement虚拟元素中
+3. 减少标签层级，减小内存占用
+
+## Teleport
+能够将我们的组件html结构移动到指定位置的技术。
+
+## Suspense
+
+1. setup中返回了一个Promise对象，就成为了一个异步组件
+2. 这种组件只能通过异步引入
 
 
 
