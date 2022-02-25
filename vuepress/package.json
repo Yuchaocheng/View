@@ -1,0 +1,14 @@
+{
+  "name": "shows",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
+  },
+  "devDependencies": {
+    "less-loader": "^10.2.0",
+    "vuepress": "^1.9.7"
+  }
+}
