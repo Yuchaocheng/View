@@ -2,7 +2,7 @@
  * @Descripttion:
  * @Author: ycc
  * @Date: 2022-02-25 10:01:28
- * @LastEditTime: 2022-02-25 15:55:14
+ * @LastEditTime: 2022-03-02 11:27:22
  */
 const path = require('path');
 
@@ -31,4 +31,5 @@ module.exports = {
       ['/components/gallery', 'selfDraw绘图组件'],
     ],
   },
+  plugins: ['demo-container'],
 };
