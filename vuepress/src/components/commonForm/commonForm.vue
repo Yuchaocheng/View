@@ -5,6 +5,10 @@ const hasProperty = (obj, property) => {
   return Object.prototype.hasOwnProperty.call(obj, property);
 };
 const oTypeMap = {
+  text: {
+    tagName: 'span',
+    notVmodel: true,
+  },
   input: {
     tagName: 'el-input',
   },
@@ -52,6 +56,9 @@ const oTypeMap = {
   datePicker: {
     tagName: 'el-date-picker',
   },
+  color: {
+    tagName: 'el-color-picker',
+  },
 };
 /*
 cus-form的优点：form表单快速成型，开发者只需传入数据即可
@@ -68,11 +75,11 @@ export default {
       },
     },
     // 是否显示保存按钮，默认不显示，传入true或者字符串则显示，传入字符串替换默认“保存”文字
-    hasCtrl: {
+    saveBtn: {
       type: [Boolean, String],
     },
-    // 是否显示取消按钮，同hasCtrl
-    hasReset: {
+    // 是否显示取消按钮，同saveBtn
+    resetBtn: {
       type: [Boolean, String],
     },
     rules: {
@@ -109,8 +116,12 @@ export default {
         const oCurrentTypeInfo = oTypeMap[item.type];
         let defaultValue = '';
         // 如果映射对象中定义了默认值，则使用，一般来说如果默认值不是空字符串，建议定义
-        if (hasProperty(oCurrentTypeInfo, 'defaultValue')) {
-          defaultValue = oCurrentTypeInfo.defaultValue;
+        if (hasProperty(item, 'defaultValue')) {
+          defaultValue = item.defaultValue;
+        } else {
+          if (hasProperty(oCurrentTypeInfo, 'defaultValue')) {
+            defaultValue = oCurrentTypeInfo.defaultValue;
+          }
         }
         if (this.firstInit) {
           this.$set(this.form, item.key, defaultValue);
@@ -128,32 +139,26 @@ export default {
         }
       });
     },
-    // 表单赋值
-    setForm(formData, value) {
-      if (typeof formData === 'string') {
-        if (hasProperty(this.form, formData)) {
-          this.form[formData] = value;
-        }
-      } else if (isObj(formData)) {
-        for (const key in formData) {
-          if (hasProperty(this.form, key)) {
-            this.form[key] = formData[key];
-          }
-        }
-      }
-    },
+
     generateAll(h) {
       const { fields } = this;
-      let formItem = null;
       const result = fields.map((field) => {
+        let formItem = null;
         let isShow = true;
-        let isSelfRender = isFun(field.render);
-        if (field.hasOwnProperty('show')) {
-          // field.show支持函数动态判断表单项是否展示
-          isShow = isFun(field.show) ? field.show(field, form) : field.show;
+
+        if (field.hasOwnProperty('isShow')) {
+          // field.isShow支持函数动态判断表单项是否展示
+          isShow = isFun(field.isShow) ? field.isShow(this.form) : field.isShow;
         }
         if (isShow) {
-          const itemMain = isSelfRender ? field.render() : this.generateItemMain(h, field);
+          // 自定义渲染整个表单项
+          if (isFun(field.render)) {
+            return field.render(h, field, this.form);
+          }
+          // 自定义渲染content，label自动生成
+          const itemMain = isFun(field.renderContent)
+            ? field.renderContent(h, field, this.form)
+            : this.generateItemMain(h, field);
           formItem = h(
             'el-form-item',
             {
@@ -171,44 +176,67 @@ export default {
       return result;
     },
     // 生成一项表单项的虚拟dom
-    generateItemMain(h, param) {
+    generateItemMain(h, field) {
       const self = this;
-      const { key, type } = param;
+      const { key, type } = field;
 
       const oCurrentItemType = oTypeMap[type];
-      const { tagName } = oCurrentItemType;
-      const options = {
-        /* render函数中的属性都是一样的，如果是字符串格式，就直接等于，否则相当于绑定 */
-        props: {
-          // 这里有个注意点，如果props中传了value是无效的，被后面定义的value覆盖
-          ...param.props,
-          value: self.form[key],
-        },
-        on: {
-          // 同样的，on监听在自用监听之上，这样才不会被覆盖
-          ...param.on,
-          input(value) {
-            self.form[key] = value;
-            if (param.on && isFun(param.on.input)) {
-              param.on.input(value);
-            }
-          },
-        },
+      if (!oCurrentItemType) {
+        return null;
+      }
+      const { tagName, notVmodel } = oCurrentItemType;
+      // options默认值
+      let options = {
+        style: {},
+        // 这里进行浅拷贝，不直接赋值，防止在options的input事件中调用field传入的input，造成死循环等问题
+        props: { ...field.props },
+        on: { ...field.on },
+        nativeOn: { ...field.nativeOn },
       };
-      if (param.ref) {
-        options.ref = param.ref;
+      if (typeof field.width === 'number') {
+        options.style.width = field.width + 'px';
+      }
+      if (Array.isArray(field.directives)) {
+        options.directives = [...directives];
       }
       let children = [];
-      // 如果该项有默认插槽
-      // 不同类型的表单项在options和data内自由补充
-      this.addtionalParams({ h, param, type, options, children }, options);
-      if (!children.length) {
-        children = null;
+      // 表单项大部分情况下都是v-model形式的，如果不是，则单独渲染
+      if (notVmodel) {
+        const oNotVmodelType = {
+          text: this.renderTextType,
+        };
+        let notVmodelObj = oNotVmodelType[type].call(this, field, options);
+        options = notVmodelObj.options;
+        children = notVmodelObj.children;
+      } else {
+        // 如果field的props中传了value是无效的，被覆盖;
+        options.props.value = self.form[key];
+        options.on.input = (value) => {
+          self.form[key] = value;
+          if (field.on && isFun(field.on.input)) {
+            field.on.input(value);
+          }
+        };
+        // 如果该项有默认插槽
+        // 不同类型的表单项在options和data内自由补充
+        this.addtionalParams({ h, field, type, options, children }, options);
+        // 渲染slot
+        if (isFun(field.renderSlot)) {
+          children.push(field.renderSlot(h, field, this.form));
+        }
+        if (!children.length) {
+          children = null;
+        }
+      }
+
+      if (field.ref) {
+        options.ref = field.ref;
       }
       return h(tagName, options, children);
     },
+    generateNotVmodelItem() {},
     // 不同类型添加额外的、自身的options
-    addtionalParams({ h, param, type, children }, options) {
+    addtionalParams({ h, field, type, children }, options) {
       /* 即除了双向绑定，还需要其他内置功能的渲染项，在这里补充 */
       const oAddMap = {
         select: this.selectAddtion,
@@ -216,16 +244,16 @@ export default {
         checkboxGroup: this.checkboxGroupAddtion,
       };
       if (oAddMap.hasOwnProperty(type)) {
-        oAddMap[type].call(this, { h, param, children, options });
+        oAddMap[type].call(this, { h, field, children, options });
       }
     },
     // select渲染补充
-    selectAddtion({ h, param, children }) {
+    selectAddtion({ h, field, children }) {
       children.push(
         h(
           'template',
           { slot: 'default' },
-          param.options.map((item) => {
+          field.options.map((item) => {
             return h('el-option', {
               props: {
                 key: item.value,
@@ -238,13 +266,13 @@ export default {
       );
     },
     // radioGroup渲染补充
-    radioGroupAddtion({ h, param, children }) {
+    radioGroupAddtion({ h, field, children }) {
       // 渲染checkbox
       children.push(
         h(
           'template',
           { slot: 'default' },
-          param.options.map((item) => {
+          field.options.map((item) => {
             let value = item.label;
             if (item.hasOwnProperty('value')) {
               value = item.value;
@@ -263,8 +291,8 @@ export default {
         )
       );
     },
-    checkboxGroupAddtion({ h, param, children, options }) {
-      param.options.forEach((item) => {
+    checkboxGroupAddtion({ h, field, children, options }) {
+      field.options.forEach((item) => {
         let value = item.label;
         if (item.hasOwnProperty('value')) {
           value = item.value;
@@ -282,6 +310,14 @@ export default {
         );
       });
     },
+    // 渲染Text类型
+    renderTextType(field, options) {
+      // 原生标签不能使用nativeOn
+      options.nativeOn = null;
+      // options.directives = [];
+      const children = [field.text];
+      return { options, children };
+    },
     // 内置按钮
     generateInternalBtn(h) {
       const btnVnodes = [];
@@ -298,8 +334,8 @@ export default {
           text
         );
       }
-      if (this.hasCtrl || this.hasCtrl === '') {
-        let ctrlText = typeof this.hasCtrl === 'string' ? this.hasCtrl : '保存';
+      if (this.saveBtn || this.saveBtn === '') {
+        let ctrlText = typeof this.saveBtn === 'string' ? this.saveBtn : '保存';
         const props = {
           type: 'primary',
         };
@@ -309,11 +345,25 @@ export default {
         };
         btnVnodes.push(createBtn(ctrlText, props, ctrlCB));
       }
-      if (this.hasReset || this.hasReset === '') {
-        let ctrlText = typeof this.hasReset === 'string' ? this.hasReset : '重置';
+      if (this.resetBtn || this.resetBtn === '') {
+        let ctrlText = typeof this.resetBtn === 'string' ? this.resetBtn : '重置';
         btnVnodes.push(createBtn(ctrlText, null, this.reset));
       }
       return h('el-form-item', { props: { label: '' } }, btnVnodes);
+    },
+    // 表单赋值
+    setForm(formData, value) {
+      if (typeof formData === 'string') {
+        if (hasProperty(this.form, formData)) {
+          this.form[formData] = value;
+        }
+      } else if (isObj(formData)) {
+        for (const key in formData) {
+          if (hasProperty(this.form, key)) {
+            this.form[key] = formData[key];
+          }
+        }
+      }
     },
     // 最终提交，也可外部调用
     submit() {

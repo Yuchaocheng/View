@@ -2,7 +2,7 @@
  * @Descripttion:
  * @Author: ycc
  * @Date: 2022-02-25 10:01:28
- * @LastEditTime: 2022-03-02 11:27:22
+ * @LastEditTime: 2022-03-11 11:18:41
  */
 const path = require('path');
 
@@ -24,11 +24,11 @@ module.exports = {
     nav: [
       // 以/结尾的路径，默认链接到/README.md
       { text: '首页', link: '/' },
-      { text: '组件', link: '/components/commonForm/' },
+      { text: '组件', link: '/components/CommonForm/' },
     ],
     sidebar: [
-      ['/components/commonForm', 'CommonForm公共表单'],
-      ['/components/gallery', 'selfDraw绘图组件'],
+      ['/components/CommonForm', 'CommonForm公共表单'],
+      ['/components/CustomDraw', 'selfDraw绘图组件'],
     ],
   },
   plugins: ['demo-container'],
