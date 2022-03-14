@@ -102,7 +102,7 @@ export default class DrawCanvas {
         let bInCurveCircle = this.judgeInCircle(e.layerX, e.layerY);
         if (!bInCurveCircle) {
           //如果未点击再圆内，则重新开始画一个二次贝塞尔曲线
-          // this.restoreCanvas();
+          this.restoreCanvas();
           this.curveStep = 'move';
         }
         isNeedSave = false;
@@ -116,13 +116,13 @@ export default class DrawCanvas {
         isNeedSave = false;
         this.font(e.layerX, e.layerY, true);
       } else {
-        // this.saveImageData(); //先存储再绘制
+        this.saveImageData(); //先存储再绘制
         isNeedSave = false;
         this.font(e.layerX, e.layerY);
       }
     }
     if (isNeedSave) {
-      // this.saveImageData();
+      this.saveImageData();
     }
     this.isDrawing = true;
     /* 尾随效果直接在move时绘制，不在up时重绘 */
@@ -149,11 +149,11 @@ export default class DrawCanvas {
         this.cursorType = this.judgeInCircle(e.layerX, e.layerY) ? 'pointer' : DEFAULTCURSOR;
         return;
       }
-      this.clearAll();
+      this.restoreCanvas();
     } else {
       if (drawType !== 'eraser') {
         //橡皮擦移动过程中不恢复canvas
-        this.clearAll();
+        this.restoreCanvas();
       }
     }
     let defaultParams = [mouseInfo.mouseDownX, mouseInfo.mouseDownY, e.layerX, e.layerY];
@@ -184,13 +184,11 @@ export default class DrawCanvas {
     if (noUpTypes.includes(drawType)) {
       if (drawType === 'tail') {
         this.isDrawing = false;
-        this.putOnShowCanvas();
-        this;
       }
       return;
     }
     if (drawType !== 'eraser') {
-      this.clearAll();
+      this.restoreCanvas();
     }
     this.context.strokeStyle = this.strokeColor;
     this.context.fillStyle = this.fillColor;
@@ -221,12 +219,8 @@ export default class DrawCanvas {
     this[funName](...aParams);
 
     /* 一般情况下鼠标松开一次绘制结束，下面是一些特殊情况 */
-    if (drawType === 'curve' && this.curveStep !== 'ballUp') {
+    if (drawType === 'curve' && this.curveStep !== 'ballMove') {
       return;
-    }
-    if (drawType !== 'eraser') {
-      //橡皮擦绘制结束后不需要把内容移动到展示画布上，因为已经实时擦除了
-      this.putOnShowCanvas();
     }
 
     /* 绘制结束，初始化数据 */
@@ -235,9 +229,6 @@ export default class DrawCanvas {
     mouseInfo.mouseDownY = -1;
     mouseInfo.latestEvent = null;
     pathArr.length = 0;
-    if (drawType === 'curve') {
-      this.curveStep = '';
-    }
   }
   // 页面鼠标松开事件
   /* 
@@ -286,7 +277,6 @@ export default class DrawCanvas {
   }
   saveImageData(isReturn) {
     if (isReturn) {
-      // getImageData是效率较低的一种做法
       return this.context.getImageData(0, 0, this.canvas.width, this.canvas.height);
     }
     this.imageData = this.context.getImageData(0, 0, this.canvas.width, this.canvas.height);
@@ -365,6 +355,7 @@ export default class DrawCanvas {
       this.context.fill();
       this.context.stroke();
       this.currentCurve = null;
+      this.curveStep = '';
     }
   }
   // 画curve图的小球
@@ -400,12 +391,10 @@ export default class DrawCanvas {
        因为这里主要是学习canvas用法，就不做其他语言的扩展了。isDone是否绘制完成 。
     */
   font(x, y, isDone, needCursor = true) {
-    this.canvas.focus();
     if (this.currentFont) {
       //键盘事件
       let content = this.textArr.join('');
-      this.clearAll();
-      // this.restoreCanvas();
+      this.restoreCanvas();
       this.context.strokeStyle = this.strokeColor;
       this.context.fillStyle = this.fillColor;
       this.context.strokeText(content, this.currentFont.x, this.currentFont.y);
@@ -423,9 +412,7 @@ export default class DrawCanvas {
           newY = this.currentFont.y + this.currentFont.fontSize + FONTLINEGAP;
         }
         //一次font绘制结束
-        this.putOnShowCanvas();
-        this.clearAll();
-        // this.saveImageData();
+        this.saveImageData();
         this.currentFont = null;
         this.textArr.length = 0;
         if (needCursor) {
@@ -474,11 +461,7 @@ export default class DrawCanvas {
       this.lastEraser = { x, y };
       return;
     }
-
-    // 擦除绘制画布中上一次绘制的橡皮擦圆
     this.eraserMain();
-    // 擦除展示画布中绘制画布圆内的内容
-    this.eraserMain(this.showCanvas);
     /* 绘制本次橡皮擦圆圈 */
     if (isDone) {
       this.lastEraser = null;
@@ -495,15 +478,14 @@ export default class DrawCanvas {
     this.lastEraser.y = y;
   }
   // 擦除上次橡皮擦圆圈。擦除上次这个动作也是和橡皮擦实物运用思路是一致的
-  eraserMain(canvas = this.canvas) {
-    let context = canvas.getContext('2d');
-    context.save();
-    context.beginPath();
+  eraserMain() {
+    this.context.save();
+    this.context.beginPath();
     // +1是为了防锯齿
-    context.arc(this.lastEraser.x, this.lastEraser.y, TAILR + ERASER_LINE_WIDTH + 1, 0, Math.PI * 2);
-    context.clip();
-    this.clearAll(canvas);
-    context.restore();
+    this.context.arc(this.lastEraser.x, this.lastEraser.y, TAILR + ERASER_LINE_WIDTH + 1, 0, Math.PI * 2);
+    this.context.clip();
+    this.clearAll();
+    this.context.restore();
   }
   // 橡皮擦样式，模仿书中的样式
   setEraserAttributes() {
@@ -517,22 +499,10 @@ export default class DrawCanvas {
 
   // 外部接口
   // 清空画布
-  clearAll(canvas = this.canvas) {
-    let context = canvas.getContext('2d');
-    context.clearRect(0, 0, canvas.width, canvas.height);
+  clearAll() {
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
   setDrawType(type) {
-    // 从font类型改变为其他类型时，记为1次绘制结束
-    if (this.drawType === 'font' && type !== 'font') {
-      this.font('', '', true, false);
-    }
     this.drawType = type;
-  }
-  putOnShowCanvas() {
-    // 将绘制好的内容迁移到展示画布上
-    const showContext = this.showCanvas.getContext('2d');
-    showContext.drawImage(this.canvas, 0, 0);
-    // 清空当前绘制画布
-    this.clearAll();
   }
 }

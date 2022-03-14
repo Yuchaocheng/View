@@ -1,7 +1,8 @@
 <template>
   <div class="mainCanvas">
-    <canvas ref="bacnground" width="415" height="580"></canvas>
-    <canvas ref="mainCanvas" width="415" height="580">浏览器不支持canvas</canvas>
+    <canvas ref="bacnground"></canvas>
+    <canvas ref="showCanvas" class="showCanvas"></canvas>
+    <canvas ref="drawCanvas"></canvas>
   </div>
 </template>
 
@@ -16,13 +17,13 @@ export default {
   },
   computed: {},
   mounted() {
-    const mainCanvasDom = this.$refs.mainCanvas;
+    const drawCanvasDom = this.$refs.drawCanvas;
     const bacngroundDom = this.$refs.bacnground;
-    const parentStyle = getComputedStyle(bacngroundDom.parentNode);
-    bacngroundDom.width = mainCanvasDom.width = parseInt(parentStyle.width);
-    bacngroundDom.height = mainCanvasDom.height = parseInt(parentStyle.height);
+    const showCanvas = this.$refs.showCanvas;
+    bacngroundDom.width = drawCanvasDom.width = showCanvas.width = bacngroundDom.parentNode.clientWidth;
+    bacngroundDom.height = drawCanvasDom.height = showCanvas.height = bacngroundDom.parentNode.clientHeight;
 
-    this.mainCanvas = new MainCanvas(mainCanvasDom, bacngroundDom);
+    this.mainCanvas = new MainCanvas(drawCanvasDom, bacngroundDom, showCanvas);
     this.mainCanvas.init();
   },
   methods: {
@@ -44,5 +45,12 @@ export default {
   > canvas {
     position: absolute;
   }
+  // .showCanvas {
+  //   position: fixed;
+  //   left: 0;
+  //   top: 0;
+  //   border: 1px solid black;
+  //   z-index: 500;
+  // }
 }
 </style>
