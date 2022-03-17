@@ -2,7 +2,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 
 // 利用正则限制，views文件夹下的同名vue文件将被匹配当做路由
-const moduleList = require.context('@/views', true, /\/(.+?)\/\1\.vue$/,'lazy');
+const moduleList = require.context('@/views', true, /\/(.+?)\/\1\.vue$/, 'lazy');
 
 //
 function createRoute(moduleList, prefix = '', isLazy = false) {
@@ -78,7 +78,7 @@ function createRoute(moduleList, prefix = '', isLazy = false) {
       }
     }
   });
-  console.log(routes,'routes');
+  // console.log(routes, 'routes');
   return routes;
 }
 
