@@ -15,6 +15,9 @@ export default {
     return {
       items: [100, 200, 300]
     };
-  }
+  },
+  created() {
+    debugger
+  },
 };
 </script>
