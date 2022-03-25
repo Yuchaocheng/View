@@ -108,6 +108,13 @@
 
 ## vue 动态组件的理解
 
+- 概念：通过 component 组件，is 属性，动态切换组件显示。利用该技术，可以少写很多 v-if 判断。当然如果组件越来越多，可以考虑使用 render 自定义渲染
+
+- 动态组件和普通组件的不同：
+  1. ast 阶段新增了 component 属性，这是动态组件的标志
+  2. 产生 render 函数阶段由于 component 属性的存在，会执行 genComponent 分支。和普通组件相比，h 函数的第一个参数不再是固定的字符串，而是一个组件名称变量
+  3. render 到 vnode 阶段流程基本相同，只是字符串替换成了变量而已，并且增加了 tag：component 的 data 属性
+
 ## slot 的理解
 
 ## \$nextTick 原理
@@ -127,3 +134,29 @@
   4. 如果 setImediate 不支持，那么最后就是用 setTimeout(0)
 
 ## keep-alive
+
+- 使用：
+  keep-alive 的使用只需要在动态组件的最外层添加标签即可，也可放在路由 router-view 外层，缓存路由切换结果
+
+  ```
+      <keep-alive>
+        <component :is="chooseTabs">
+        </component>
+    </keep-alive>
+  ```
+
+- keep-alive 和其他组件的不同：
+  组件生成时，只保留 slot 属性，其他属性是没有意义的，比方说 class 属性等
+
+- keep-alive 组件的渲染流程：
+  1. 获取 keep-alive 下插槽的内容，也就是 keep-alive 需要渲染的子组件
+  2. 判断组件是否满足匹配条件，
+     匹配条件就是 keep-alive 组件的两个 props，include 和 exclude，匹配规则允许使用字符串、数组和正则
+     当然还有一个 max，可以限制缓存的组件个数
+     如果没有满足匹配条件，那么直接返回第一步中拿到的子组件 vnode，去创造子组件，子组件创造过程中发现没有keepAlive为true的属性，所以会调用 createComponentInstanceForVnode方法进行组件实例化，并将组件实例赋值给vnode。
+     如果满足条件，继续往下
+  3. 即缓存子组件 vnode，这里 vue 使用了两个变量，对象 cache 和数组 keys，数组 keys 主要是用来判断缓存的组件是否已经超过设置的 max 值。对象 cache 就是以 Vnode 的 key 作为属性，缓存子组件的 vnode，在 vnode 的 data 属性上打上标记 keepalive 为 true。
+  4. 组件实例化 
+     1. 如果判断缓存中已经有该虚拟 DOM 了，就会将第一步取出来的 vnode 的 componentInstance 属性指向缓存中的vnode的 componentInstance 属性。
+     2. 如果未缓存，则会调用 createComponentInstanceForVnode 方法进行组件实例化，并将组件实例赋值给 vnode 的 componentInstance 属性。所以说会有一系列生命周期
+  5. vnode保存的属性中是带有真实DOM的，真实DOM是比较庞大的，所以说是不建议缓存大量组件的。一般来说还是设置max的值对性能会好一些
