@@ -1,0 +1,37 @@
+<div id="deviceInfo">
+    <div>
+        <span class="label">设备名称</span>
+        <span class="content">
+            <h-input type="text" v-model="oDeviceInfo.deviceName" />
+        </span>
+    </div>
+    <div>
+        <span class="label">设备编号</span>
+        <span class="content">
+            <h-input type="text" v-model="oDeviceInfo.deviceID"></h-input>
+        </span>
+    </div>
+    <div>
+        <span class="label">设备型号 </span>
+        <span class="content">{{oDeviceInfo.model}}</span>
+    </div>
+    <div>
+        <span class="label"> 设备序列号 </span>
+        <span class="content">{{oDeviceInfo.serialNumber}}</span>
+    </div>
+    <div>
+        <span class="label">主控版本</span>
+        <span class="content">{{oDeviceInfo.firmwareReleasedDate}}</span>
+    </div>
+    <div>
+        <span class="label"> 编码版本</span>
+        <span class="content">{{oDeviceInfo.encoderVersion}}</span>
+    </div>
+    <div>
+        <span class="label"></span>
+        <h-button @click="save" style="margin:20px 0;width: 100px;">
+            保存
+        </h-button>
+    </div>
+
+</div>

@@ -1,0 +1,101 @@
+header {
+    box-sizing: border-box;
+    padding: 10px;
+    height: 60px;
+    background: black;
+
+}
+header .logo{
+    color: white;
+    font-size: 24px;
+}
+
+nav {
+    width: 240px;
+    float: left;
+    height: calc(100vh - 60px);
+    background: #333;
+}
+
+main{
+    float: left;
+}
+#deviceInfo {
+    padding: 20px 240px 0;
+}
+
+#deviceInfo>div {
+    margin: 10px 0;
+    color: #4d4d4d;
+    font-size: 14px;
+    line-height: 32px;
+    display: flex;
+}
+
+#deviceInfo>div .content {
+    width: 540px;
+}
+
+#deviceInfo .label {
+    flex: 0 0 100px;
+    margin-right: 20px;
+    text-align: right;
+}
+div,
+h1,
+span,
+ul,body,html
+li {
+    margin: 0;
+    padding: 0;
+}
+
+body,
+html {
+    width: 100%;
+    height: 100%;
+}
+
+#login {
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    position: absolute
+}
+
+.container {
+    box-sizing: border-box;
+    padding: 10px;
+    padding-top: 60px;
+    border: 1px solid;
+    margin: 0 auto;
+    position: relative;
+    top: 40%;
+    transform: translateY(-50%);
+    width: 320px;
+    height: 280px;
+    background: #eee;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.item {
+    display: flex;
+    margin: 20px 0;
+}
+
+.item>span {
+    flex: 80px 0 0;
+    text-align: right;
+    margin-right: 8px;
+}
+
+#login .btn {
+    margin: auto;
+    padding: 4px 6px;
+    width: 100%;
+    color: white;
+    background: #F5252C;
+    cursor: pointer;
+}

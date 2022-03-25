@@ -1,0 +1,48 @@
+<style>
+    input {
+        width: 100%;
+        padding: 0;
+        text-align: inherit;
+        /* 
+        CSS1和CSS2中定义了border-color属性的默认值是color属性的值，但却没有为此定义一个相应的关键字，currentColor变量就是使用当前元素的color值
+        如果currentColor关键字被应用在color属性自身，则相当于是color:inherit
+         */
+        color: currentColor;
+        border: 0;
+        outline: 0;
+        line-height: inherit;
+        font-size: inherit;
+        font-family: inherit;
+        min-width: 0;
+        background: none;
+        overflow-x: hidden;
+        transition: color .3s;
+        animation: removeBg 0s forwards;
+    }
+
+    :host {
+        box-sizing: border-box;
+        display: inline-block;
+        width: 100%;
+        height: 32px;
+        line-height: 32px;
+        padding: 0 8px;
+        border: 1px solid #b3b3b3;
+        border-radius: 2px;
+        transition: border-color 0.2s;
+        background-color: white;
+        color: #4d4d4d;
+        text-align: left;
+    }
+
+    :host(:hover) {
+        border-color: #4d4d4d;
+    }
+
+    :host(:focus-within) {
+        border-color: #4d4d4d;
+    }
+
+</style>
+
+<input type="text" id="input">
