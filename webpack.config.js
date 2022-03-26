@@ -35,6 +35,8 @@ module.exports = {
     ],
     devServer: {
         contentBase: path.resolve(__dirname, "dist"),
+        host:'0.0.0.0',
+        useLocalIp:true,
         port: 8899,
         compress: false,
         open: true,

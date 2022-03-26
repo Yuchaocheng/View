@@ -328,7 +328,7 @@ new Watcher(this.$vue, value, () => {
 
 ```
 
-这两段代码是之前写过的。这里 new Watcher 传入的 this.$vue，可以改为this._data。因为_initData函数对this.$vue 做了数据代理，访问 this.\$vue 上的数据实际就是访问了 this.\_data。也就是访问了传入的 data。
+这两段代码是之前写过的。这里 new Watcher 传入的 this.$vue，可以改为this.\_data。因为_initData函数对this.$vue 做了数据代理，访问 this.\$vue 上的数据实际就是访问了 this.\_data。也就是访问了传入的 data。
 那么这个目的又明确了，对传入的对象`data={x:1}`，调用 observe 方法进行数据监测后，使用 new Watcher 可以监听到其属性的变化，并且执行回调函数，任务就完成了。  
 到这里可能有些小伙伴觉得这个事情好像很简单，这里又是 observe，又是 Watcher 类是不是搞复杂了。其实是因为本文的例子非常简单，数据监测的复杂性来自于这几点：
 
