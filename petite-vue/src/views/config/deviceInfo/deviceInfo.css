@@ -1,0 +1,21 @@
+#deviceInfo {
+    padding: 20px 240px 0;
+}
+
+#deviceInfo>div {
+    margin: 10px 0;
+    color: #4d4d4d;
+    font-size: 14px;
+    line-height: 32px;
+    display: flex;
+}
+
+#deviceInfo>div .content {
+    width: 540px;
+}
+
+#deviceInfo .label {
+    flex: 0 0 100px;
+    margin-right: 20px;
+    text-align: right;
+}

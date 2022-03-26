@@ -45,25 +45,31 @@ class MySnabbdom {
   }
   // 使用自己编写的h
   useMyH() {
-    const { patch } = this; 
-    const vnode = 
-      h('ul',[
-        h('li',{key:'A'},'A'),
-        h('li',{key:'B'},'B'),
-        h('li',{key:'C'},'C'),
-      ])
-      console.log(vnode, 'vnode22');
-      let newVnode =
-        h('ul',[
-          h('li',{key:'A'},'A'),
-          // h('li',{key:'B'},'B'),
-          h('li',{key:'C'},'C'),
-          h('li',{key:'D'},'D'),
-        ])
-      ;
-    const container = document.getElementById('container')
-    let oldVnode =  myPatch(container,vnode)
-    oldVnode =  myPatch(oldVnode,newVnode)
+    const { patch } = this;
+    const vnode = h('ul', { props: { id: 'ul' } }, [
+      h('li', { key: 'A' }, 'A'),
+      h('li', { key: 'B' }, 'B'),
+      h('li', { key: 'C' }, 'C')
+    ]);
+    console.log(vnode, 'vnode22');
+    let newVnode = h('ul', [
+      h('li', { key: 'A' }, 'A'),
+      // h('li',{key:'B'},'B'),
+      h('li', { key: 'C' }, 'C'),
+      h('li', { key: 'D' }, 'D'),
+      h('input', {
+        props: { value: 'x' },
+        on: {
+          input: $event => {
+            console.log($event.target.value);
+            console.log('event');
+          }
+        }
+      })
+    ]);
+    const container = document.getElementById('container');
+    let oldVnode = myPatch(container, vnode);
+    oldVnode = myPatch(oldVnode, newVnode);
 
     // const patch = this.patch;
     // const result = H('ul', { class: { myH: true } }, [

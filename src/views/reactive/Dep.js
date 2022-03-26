@@ -22,7 +22,6 @@ export default class Dep {
   }
   // 通知所有watcher对象更新视图，即分发消息。
   notify() {
-    // 源码中是这么写的，为什么要浅克隆一份？
     const subs = this.subs.slice();
     console.log(subs, 'subs');
     for (let i = 0; i < subs.length; i++) {

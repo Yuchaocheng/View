@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>data初始化问题</title>
+    <script src="../lib/vue.js"></script>
+  </head>
+
+  <body>
+    <div id="app">
+      <button @click="changeName(1)">changeName1</button>
+      <button @click="changeName(2)">changeName2</button>
+      <v-test :name="name1"></v-test>
+      <v-test :name="name2"></v-test>
+    </div>
+    <script>
+      Vue.component('VTest', {
+        template: `<div><h1>C1组件 - {{count}} </h1><h2>{{name}}</h2><button @click="changeCount" >changeCount</button></div>`,
+        // data () {
+        //     return {
+        //         count: 1
+        //     }
+        // }
+        data: { count: 1 },
+        props: {
+          name: String
+        },
+        methods: {
+          changeCount() {
+            this.count++;
+          }
+        }
+      });
+      const vm = new Vue({
+        el: '#app',
+        data: {
+          items: [100, 200, 300],
+          name1: 'test1',
+          name2: 'test2'
+        },
+        methods: {
+          changeName(num) {
+            if (num === 1) {
+              this.name1 += '*';
+            } else {
+              this.name2 += '&';
+            }
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
