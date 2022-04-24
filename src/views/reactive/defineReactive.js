@@ -1,3 +1,9 @@
+/*
+ * @Description: 
+ * @Autor: ycc
+ * @Date: 2021-12-19 21:47:22
+ * @LastEditTime: 2022-04-21 10:32:40
+ */
 import observe from './observe';
 
 import Dep from './Dep';
@@ -19,6 +25,7 @@ export default function defineReactive(data, key, value) {
       console.log(`你正在访问${key}`);
       // getter时收集依赖
       // 如果现在处于依赖收集阶段
+      // debugger
       if (Dep.target) {
         dep.depend();
         if (childObj) {

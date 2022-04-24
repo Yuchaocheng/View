@@ -1,0 +1,51 @@
+<!--
+ * @Description: 
+ * @Autor: ycc
+ * @Date: 2022-04-18 11:44:52
+ * @LastEditTime: 2022-04-18 11:54:49
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proxy</title>
+</head>
+
+<body>
+    <script>
+
+        function t1() {
+            var obj = {
+                count: 0,
+                list: [1, 2, 4]
+            }
+            var target = {};
+            Object.defineProperty(obj, 'count', {
+                get() {
+                    return 0
+                },
+                set(val) {
+                    console.log(val, 'val');
+                }
+            })
+        }
+
+
+        var arr = [0]
+        Object.defineProperty(arr, '0', {
+            get() {
+                return 0
+            },
+            set(val) {
+                console.log(val, 'val');
+            }
+        })
+        console.log(arr,'arr');
+
+    </script>
+</body>
+
+</html>

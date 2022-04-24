@@ -54,7 +54,7 @@ const updateChildren = (parentNode, oldCh, newCh) => {
       // 新后与旧前
       patchVnode(oldStartVnode, newEndVnode);
       /* insertBefore插入一个已经在DOM树上的DOM节点，该DOM节点就会移动，这一点很关键。 */
-      // 新前指向的节点，移动到旧后之后。因为现在是新后命中，所以最终的排序，插入节点一定是在已经匹配过的元素的最后。所以是旧后之后
+      // 新后指向的节点，移动到旧后之后。因为现在是新后命中，所以最终的排序，插入节点一定是在已经匹配过的元素的最后。所以是旧后之后
       parentNode.insertBefore(newEndVnode.elm, oldEndVnode.elm.nextSibling);
       oldStartVnode = oldCh[++oldStartIdx];
       newEndVnode = newCh[--newEndIdx];
