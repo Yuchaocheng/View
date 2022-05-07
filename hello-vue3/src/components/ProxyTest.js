@@ -51,3 +51,28 @@ function ReflectTest() {
   console.log(obj);
 }
 // ReflectTest();
+
+
+
+var obj = { a: 1 }
+// Proxy的第二个属性，就是用来决定拦截操作类型，基础的是get还是set还是deleteProperty
+new Proxy(obj, {
+  get(target, propName) {
+    return Reflect.get(target, propName)
+  },
+  // 新增和修改都在set中
+  set(target, propName, newValue) {
+    Reflect.set(target, propName, newValue)
+  },
+  deleteProperty(target, propName) {
+    // 可以使用这种形式代替delete关键字，更好的可读性
+    return Reflect.deleteProperty(target, propName)
+  },
+  // 监听HasProperty操作，比方说in
+  has(target, propName) {
+    // 可以用Reflect.has的方式判断属性是否存在于对象中，比in具有更好的可读性
+    return Reflect.has(target, propName)
+  }
+})
+
+// 还有像has
