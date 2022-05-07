@@ -1,5 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
+import AutoRouteGenerator from 'ea-router';
+import defaultLayout from "../components/defaultLayout.vue"
 
 // 利用正则限制，views文件夹下的同名vue文件将被匹配当做路由
 const moduleList = require.context('@/views', true, /\/(.+?)\/\1\.vue$/, 'lazy');
@@ -24,7 +26,7 @@ function createRoute(moduleList, prefix = '', isLazy = false) {
     }
   });
 
-  orderList.forEach(key => {
+  orderList.forEach((key) => {
     // 删除路径开头的./和结尾的.vue
     let keyStr = key.slice(2, key.length - 4);
     const pathArr = keyStr.split('/');
@@ -47,7 +49,7 @@ function createRoute(moduleList, prefix = '', isLazy = false) {
     const routeObj = {
       // path去掉结尾文件路径，保留文件夹路径
       path: pathArr.slice(0, pathArr.length - 1).join('/'),
-      component
+      component,
     };
     // length等于2说明是最最外层
     const oneLength = prefix ? 3 : 2;
@@ -82,8 +84,13 @@ function createRoute(moduleList, prefix = '', isLazy = false) {
   return routes;
 }
 
+let generator = new AutoRouteGenerator(require.context('../views', true, /\.vue$/));
+generator.setDefaultLayout(defaultLayout);
+const routes = generator.generate();
+console.log(routes, 'routes');
+
 const router = new VueRouter({
-  routes: createRoute(moduleList, '', true)
+  routes: createRoute(moduleList, '', true),
 });
 Vue.use(VueRouter);
 
